@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Nonton — CineVerse</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --bg:#07070f;--surface:#0f0f1c;--card:#131320;
+      --border:rgba(255,255,255,0.06);--accent:#e5383b;--accent2:#ff6b35;
+      --gold:#f4c430;--text:#eff0f6;--muted:#6b6b88;--radius:14px;
+    }
+    body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh}
+    ::-webkit-scrollbar{width:5px}
+    ::-webkit-scrollbar-track{background:var(--bg)}
+    ::-webkit-scrollbar-thumb{background:var(--accent);border-radius:3px}
+
+    /* NAV */
+    nav{
+      display:flex;align-items:center;justify-content:space-between;
+      padding:0 5%;height:62px;
+      background:rgba(7,7,15,.97);border-bottom:1px solid var(--border);
+      position:sticky;top:0;z-index:50;
+    }
+    .logo{font-family:'Bebas Neue',sans-serif;font-size:1.9rem;letter-spacing:4px;cursor:pointer;
+      background:linear-gradient(135deg,var(--accent),var(--accent2));
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent}
+    .back-btn{display:flex;align-items:center;gap:8px;color:var(--muted);background:none;border:none;cursor:pointer;font-size:.85rem;font-family:'DM Sans',sans-serif;transition:color .2s}
+    .back-btn:hover{color:var(--text)}
+
+    /* LAYOUT */
+    .watch-layout{display:grid;grid-template-columns:1fr 360px;min-height:calc(100vh - 62px)}
+    @media(max-width:900px){.watch-layout{grid-template-columns:1fr}}
+    @media(max-width:900px){.sidebar{display:none}}
+
+    /* PLAYER SIDE */
+    .player-side{background:#000;display:flex;flex-direction:column}
+
+    /* Player container — this is what we fullscreen */
+    #playerContainer{
+      position:relative;width:100%;aspect-ratio:16/9;background:#000;
+      /* Needed for fullscreen to work on the container */
+    }
+
+    /* When fullscreen is active, make container fill screen */
+    #playerContainer:-webkit-full-screen{width:100vw;height:100vh;aspect-ratio:unset}
+    #playerContainer:-moz-full-screen{width:100vw;height:100vh;aspect-ratio:unset}
+    #playerContainer:-ms-fullscreen{width:100vw;height:100vh;aspect-ratio:unset}
+    #playerContainer:fullscreen{width:100vw;height:100vh;aspect-ratio:unset}
+
+    #playerContainer iframe{
+      position:absolute;inset:0;
+      width:100%;height:100%;border:none;display:block;
+    }
+
+    /* Loading overlay */
+    #playerLoading{
+      position:absolute;inset:0;display:flex;flex-direction:column;
+      align-items:center;justify-content:center;gap:14px;
+      background:#000;z-index:3;transition:opacity .4s;
+    }
+    #playerLoading.hidden{opacity:0;pointer-events:none}
+    .spinner{width:44px;height:44px;border:3px solid rgba(255,255,255,.1);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .loading-text{color:var(--muted);font-size:.85rem}
+
+    /* Fullscreen button overlay */
+    #fsBtn{
+      position:absolute;bottom:14px;right:14px;z-index:4;
+      background:rgba(0,0,0,.75);border:1px solid rgba(255,255,255,.2);
+      color:#fff;padding:8px 14px;border-radius:8px;cursor:pointer;
+      font-size:.8rem;font-family:'DM Sans',sans-serif;
+      display:flex;align-items:center;gap:6px;
+      transition:background .2s,opacity .3s;
+      opacity:0;
+    }
+    #playerContainer:hover #fsBtn{opacity:1}
+    #fsBtn:hover{background:var(--accent);border-color:var(--accent)}
+
+    /* In fullscreen, always show the button */
+    #playerContainer:fullscreen #fsBtn,
+    #playerContainer:-webkit-full-screen #fsBtn{opacity:1}
+
+    /* Movie info below player */
+    .player-info{padding:22px 26px 30px;border-top:1px solid var(--border);background:var(--bg)}
+    .pi-title{font-family:'Bebas Neue',sans-serif;font-size:1.9rem;letter-spacing:1px;margin-bottom:10px}
+    .pi-meta{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+    .pi-rating{color:var(--gold);font-weight:600;font-size:.88rem;display:flex;align-items:center;gap:4px}
+    .pi-pill{color:var(--muted);font-size:.76rem;border:1px solid rgba(255,255,255,.1);padding:3px 11px;border-radius:20px}
+    .pi-overview{color:rgba(239,240,246,.62);font-size:.86rem;line-height:1.7;margin-bottom:20px}
+    .pi-genres{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:18px}
+    .pi-genre{background:rgba(229,56,59,.1);border:1px solid rgba(229,56,59,.25);color:var(--accent);padding:4px 12px;border-radius:20px;font-size:.72rem}
+
+    /* Server selector */
+    .server-section{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px 20px}
+    .server-title{font-size:.72rem;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:10px}
+    .server-grid{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+    .srv-btn{background:var(--card);border:1px solid var(--border);color:var(--muted);padding:8px 18px;border-radius:8px;font-size:.78rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s}
+    .srv-btn:hover,.srv-btn.active{background:var(--accent);border-color:var(--accent);color:#fff}
+    .server-note{color:var(--muted);font-size:.72rem;line-height:1.6}
+
+    /* SIDEBAR */
+    .sidebar{background:var(--surface);border-left:1px solid var(--border);overflow-y:auto;display:flex;flex-direction:column}
+    .sidebar-header{padding:18px 20px 14px;border-bottom:1px solid var(--border);font-family:'Bebas Neue',sans-serif;font-size:1.15rem;letter-spacing:1.5px;position:sticky;top:0;background:var(--surface);z-index:2}
+    .rec-card{display:flex;gap:12px;padding:12px 16px;cursor:pointer;border-bottom:1px solid var(--border);transition:background .2s}
+    .rec-card:hover{background:rgba(255,255,255,.04)}
+    .rec-poster{flex:0 0 62px;height:90px;border-radius:8px;object-fit:cover}
+    .rec-poster-ph{flex:0 0 62px;height:90px;border-radius:8px;background:var(--card);display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:1.4rem}
+    .rec-info{display:flex;flex-direction:column;justify-content:center;gap:5px;overflow:hidden;min-width:0}
+    .rec-title{font-size:.82rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .rec-meta{display:flex;align-items:center;gap:8px}
+    .rec-rating{color:var(--gold);font-size:.72rem;font-weight:600}
+    .rec-year{color:var(--muted);font-size:.7rem}
+    .rec-desc{color:var(--muted);font-size:.74rem;line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+
+    /* SKELETON */
+    .skeleton{background:linear-gradient(90deg,var(--card) 25%,#1a1a2e 50%,var(--card) 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:var(--radius)}
+    @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+    /* TOAST */
+    #toast{position:fixed;bottom:24px;right:24px;z-index:999;background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);padding:12px 20px;border-radius:10px;font-size:.83rem;color:var(--text);transform:translateY(80px);opacity:0;transition:all .35s;max-width:290px}
+    #toast.show{transform:translateY(0);opacity:1}
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="logo" onclick="goHome()">CineVerse</div>
+  <button class="back-btn" onclick="goHome()">← Kembali ke Beranda</button>
+</nav>
+
+<div class="watch-layout">
+
+  <!-- PLAYER SIDE -->
+  <div class="player-side">
+
+    <!-- Player container (ini yang di-fullscreen) -->
+    <div id="playerContainer">
+      <div id="playerLoading">
+        <div class="spinner"></div>
+        <span class="loading-text">Memuat film...</span>
+      </div>
+      <iframe
+        id="playerFrame"
+        allowfullscreen="true"
+        webkitallowfullscreen="true"
+        mozallowfullscreen="true"
+        allow="autoplay; fullscreen; picture-in-picture; encrypted-media"
+        sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-presentation allow-top-navigation"
+      ></iframe>
+      <!-- Fullscreen button -->
+      <button id="fsBtn" onclick="toggleFullscreen()">⛶ Layar Penuh</button>
+    </div>
+
+    <!-- Info di bawah player -->
+    <div class="player-info" id="playerInfo">
+      <div class="skeleton" style="height:34px;width:55%;margin-bottom:12px;border-radius:6px"></div>
+      <div class="skeleton" style="height:16px;width:40%;margin-bottom:18px;border-radius:6px"></div>
+      <div class="skeleton" style="height:65px;width:100%;border-radius:6px"></div>
+    </div>
+
+  </div>
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-header">Film Rekomendasi</div>
+    <div id="recList"></div>
+  </div>
+
+</div>
+
+<div id="toast"></div>
+
+<script>
+  const API_KEY = '8fa936e44fccebb6750101c3ed4c7d79';
+  const BASE    = 'https://api.themoviedb.org/3';
+  const IMG     = 'https://image.tmdb.org/t/p/';
+
+  const SERVERS = [
+    { name:'Server 1', url: id => `https://vidsrc.cc/v2/embed/movie/${id}` },
+    { name:'Server 2', url: id => `https://vidsrc.xyz/embed/movie/${id}` },
+    { name:'Server 3', url: id => `https://embed.su/embed/movie/${id}` },
+    { name:'Server 4', url: id => `https://multiembed.mov/?video_id=${id}&tmdb=1` },
+    { name:'Server 5', url: id => `https://player.videasy.net/movie/${id}` },
+    { name:'Server 6', url: id => `https://vidsrc.me/embed/movie?tmdb=${id}` },
+  ];
+
+  let currentId = null, activeServer = 0;
+
+  async function api(path) {
+    const sep = path.includes('?') ? '&' : '?';
+    const res = await fetch(BASE + path + sep + 'api_key=' + API_KEY);
+    return res.json();
+  }
+
+  function getParams() {
+    const p = new URLSearchParams(window.location.search);
+    return { id: p.get('id'), server: parseInt(p.get('server') || '0') };
+  }
+
+  function goHome() { window.location.href = 'index.html'; }
+
+  /* ── FULLSCREEN ── */
+  function toggleFullscreen() {
+    const container = document.getElementById('playerContainer');
+    const btn = document.getElementById('fsBtn');
+
+    const isFs = !!(
+      document.fullscreenElement ||
+      document.webkitFullscreenElement ||
+      document.mozFullScreenElement ||
+      document.msFullscreenElement
+    );
+
+    if (!isFs) {
+      // Masuk fullscreen
+      if (container.requestFullscreen)            container.requestFullscreen();
+      else if (container.webkitRequestFullscreen) container.webkitRequestFullscreen();
+      else if (container.mozRequestFullScreen)    container.mozRequestFullScreen();
+      else if (container.msRequestFullscreen)     container.msRequestFullscreen();
+      btn.textContent = '⊠ Keluar Layar Penuh';
+    } else {
+      // Keluar fullscreen
+      if (document.exitFullscreen)            document.exitFullscreen();
+      else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+      else if (document.mozCancelFullScreen)  document.mozCancelFullScreen();
+      else if (document.msExitFullscreen)     document.msExitFullscreen();
+      btn.textContent = '⛶ Layar Penuh';
+    }
+  }
+
+  // Update teks tombol saat berubah (misal tekan ESC)
+  document.addEventListener('fullscreenchange',       updateFsBtn);
+  document.addEventListener('webkitfullscreenchange', updateFsBtn);
+  document.addEventListener('mozfullscreenchange',    updateFsBtn);
+  function updateFsBtn() {
+    const isFs = !!(document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement);
+    document.getElementById('fsBtn').textContent = isFs ? '⊠ Keluar Layar Penuh' : '⛶ Layar Penuh';
+  }
+
+  /* ── LOAD PLAYER ── */
+  function loadPlayer(id, serverIdx) {
+    const loading = document.getElementById('playerLoading');
+    const frame   = document.getElementById('playerFrame');
+    loading.classList.remove('hidden');
+    frame.src = '';
+    setTimeout(() => {
+      frame.src = SERVERS[serverIdx].url(id);
+    }, 100);
+    // Hide loading after 3s regardless
+    setTimeout(() => loading.classList.add('hidden'), 3000);
+  }
+
+  frame_onload: {
+    document.getElementById('playerFrame').addEventListener('load', () => {
+      document.getElementById('playerLoading').classList.add('hidden');
+    });
+  }
+
+  /* ── SWITCH SERVER ── */
+  function switchServer(i) {
+    activeServer = i;
+    document.querySelectorAll('.srv-btn').forEach((b,idx) => b.classList.toggle('active', idx===i));
+    loadPlayer(currentId, i);
+    showToast(`Beralih ke ${SERVERS[i].name}...`);
+    const url = new URL(window.location);
+    url.searchParams.set('server', i);
+    window.history.replaceState({}, '', url);
+  }
+
+  /* ── MOVIE INFO ── */
+  async function loadMovieInfo(id) {
+    const m = await api(`/movie/${id}?language=id-ID`);
+    const info = document.getElementById('playerInfo');
+    info.innerHTML = `
+      <h1 class="pi-title">${m.title}</h1>
+      <div class="pi-meta">
+        <span class="pi-rating">⭐ ${m.vote_average?.toFixed(1)||'—'}</span>
+        <span class="pi-pill">${(m.release_date||'').slice(0,4)||'—'}</span>
+        <span class="pi-pill">${m.runtime ? m.runtime+' menit':'—'}</span>
+        <span class="pi-pill">${m.status||'—'}</span>
+      </div>
+      <div class="pi-genres">
+        ${(m.genres||[]).map(g=>`<span class="pi-genre">${g.name}</span>`).join('')}
+      </div>
+      <p class="pi-overview">${m.overview||'Tidak ada sinopsis.'}</p>
+      <div class="server-section">
+        <p class="server-title">Ganti Server — jika film tidak muncul</p>
+        <div class="server-grid" id="serverGrid"></div>
+        <p class="server-note">⚠️ Server pihak ketiga, film mungkin tidak selalu tersedia. Coba server lain jika layar kosong.</p>
+      </div>
+    `;
+    document.title = `${m.title} — CineVerse`;
+    document.getElementById('serverGrid').innerHTML =
+      SERVERS.map((s,i) => `<button class="srv-btn ${i===activeServer?'active':''}" onclick="switchServer(${i})">${s.name}</button>`).join('');
+
+    loadRecommendations(id, m.genres?.[0]?.id);
+  }
+
+  /* ── RECOMMENDATIONS ── */
+  async function loadRecommendations(id, genreId) {
+    const list = document.getElementById('recList');
+    list.innerHTML = Array(5).fill(`
+      <div style="display:flex;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border)">
+        <div class="skeleton" style="flex:0 0 62px;height:90px;border-radius:8px"></div>
+        <div style="flex:1;display:flex;flex-direction:column;gap:8px;justify-content:center">
+          <div class="skeleton" style="height:14px;width:80%;border-radius:4px"></div>
+          <div class="skeleton" style="height:12px;width:50%;border-radius:4px"></div>
+          <div class="skeleton" style="height:30px;width:100%;border-radius:4px"></div>
+        </div>
+      </div>`).join('');
+
+    let data = await api(`/movie/${id}/recommendations?language=id-ID`);
+    if (!data.results?.length && genreId) {
+      data = await api(`/discover/movie?with_genres=${genreId}&language=id-ID&sort_by=popularity.desc`);
+    }
+    const movies = (data.results||[]).filter(m => m.id != id).slice(0, 15);
+    if (!movies.length) {
+      list.innerHTML = '<p style="padding:20px;color:var(--muted);font-size:.83rem">Tidak ada rekomendasi.</p>';
+      return;
+    }
+    list.innerHTML = movies.map(m => {
+      const poster = m.poster_path
+        ? `<img class="rec-poster" src="${IMG}w185${m.poster_path}" alt="${m.title}" loading="lazy"/>`
+        : `<div class="rec-poster-ph">🎬</div>`;
+      return `<div class="rec-card" onclick="watchMovie(${m.id})">
+        ${poster}
+        <div class="rec-info">
+          <div class="rec-title">${m.title||m.name}</div>
+          <div class="rec-meta">
+            <span class="rec-rating">⭐ ${m.vote_average?.toFixed(1)||'—'}</span>
+            <span class="rec-year">${(m.release_date||'').slice(0,4)||'—'}</span>
+          </div>
+          <div class="rec-desc">${m.overview||'—'}</div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  function watchMovie(id) {
+    window.location.href = `watch.html?id=${id}&server=0`;
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg; t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3000);
+  }
+
+  /* ── INIT ── */
+  const { id, server } = getParams();
+  if (!id) { goHome(); }
+  else {
+    currentId = id;
+    activeServer = server;
+    loadPlayer(id, server);
+    loadMovieInfo(id);
+  }
+</script>
+</body>
+</html>

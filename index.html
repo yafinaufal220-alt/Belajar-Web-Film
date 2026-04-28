@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CineVerse — Dunia Film</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --bg:#07070f;--surface:#0f0f1c;--card:#131320;
+      --border:rgba(255,255,255,0.06);--accent:#e5383b;--accent2:#ff6b35;
+      --gold:#f4c430;--text:#eff0f6;--muted:#6b6b88;--radius:14px;
+    }
+    html{scroll-behavior:smooth}
+    body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;overflow-x:hidden}
+    ::-webkit-scrollbar{width:5px}
+    ::-webkit-scrollbar-track{background:var(--bg)}
+    ::-webkit-scrollbar-thumb{background:var(--accent);border-radius:3px}
+
+    /* NAV */
+    nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 5%;height:64px;background:linear-gradient(to bottom,rgba(7,7,15,.97) 70%,transparent);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+    .logo{font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:4px;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+    .nav-links{display:flex;gap:28px}
+    .nav-links a{color:var(--muted);text-decoration:none;font-size:.83rem;font-weight:500;cursor:pointer;transition:color .2s}
+    .nav-links a:hover,.nav-links a.active{color:var(--text)}
+    #searchInput{background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:10px;color:var(--text);padding:9px 16px;font-size:.83rem;width:200px;outline:none;transition:border-color .25s,width .3s;font-family:'DM Sans',sans-serif}
+    #searchInput:focus{border-color:rgba(229,56,59,.6);width:260px}
+    #searchInput::placeholder{color:var(--muted)}
+
+    /* HERO */
+    #hero{position:relative;height:92vh;min-height:580px;display:flex;align-items:flex-end;padding:0 5% 80px;overflow:hidden}
+    #heroBg{position:absolute;inset:0;background-size:cover;background-position:center top;transition:opacity 1s}
+    #heroBg::after{content:'';position:absolute;inset:0;background:linear-gradient(to right,rgba(7,7,15,.96) 32%,rgba(7,7,15,.3) 65%,transparent),linear-gradient(to top,rgba(7,7,15,1) 0%,rgba(7,7,15,.4) 40%,transparent 65%)}
+    .hero-content{position:relative;z-index:2;max-width:560px}
+    .hero-badge{display:inline-flex;align-items:center;gap:6px;background:var(--accent);color:#fff;font-size:.65rem;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;padding:5px 12px;border-radius:5px;margin-bottom:16px}
+    .hero-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(3rem,6.5vw,5.2rem);line-height:.93;letter-spacing:1.5px;margin-bottom:16px}
+    .hero-meta{display:flex;align-items:center;gap:10px;margin-bottom:18px;flex-wrap:wrap}
+    .hero-rating{display:flex;align-items:center;gap:5px;color:var(--gold);font-weight:600;font-size:.88rem}
+    .hero-pill{color:var(--muted);font-size:.78rem;border:1px solid rgba(255,255,255,.12);padding:3px 11px;border-radius:20px}
+    .hero-overview{color:rgba(239,240,246,.65);font-size:.88rem;line-height:1.7;margin-bottom:28px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+    .hero-btns{display:flex;gap:12px;flex-wrap:wrap}
+    .btn-red{background:var(--accent);color:#fff;border:none;cursor:pointer;padding:13px 28px;border-radius:9px;font-size:.88rem;font-weight:600;font-family:'DM Sans',sans-serif;display:flex;align-items:center;gap:8px;transition:background .2s,transform .15s}
+    .btn-red:hover{background:#c8202a;transform:translateY(-2px)}
+    .btn-ghost{background:rgba(255,255,255,.08);color:var(--text);border:1px solid rgba(255,255,255,.14);cursor:pointer;padding:13px 28px;border-radius:9px;font-size:.88rem;font-family:'DM Sans',sans-serif;display:flex;align-items:center;gap:8px;backdrop-filter:blur(6px);transition:background .2s,transform .15s}
+    .btn-ghost:hover{background:rgba(255,255,255,.15);transform:translateY(-2px)}
+    .hero-dots{position:absolute;bottom:30px;right:5%;z-index:3;display:flex;gap:8px;align-items:center}
+    .dot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.3);cursor:pointer;transition:background .3s,width .3s,border-radius .3s}
+    .dot.active{background:var(--accent);width:22px;border-radius:4px}
+
+    /* MAIN */
+    main{padding:0 5% 90px}
+    .section{margin-bottom:52px}
+    .section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+    .section-title{font-family:'Bebas Neue',sans-serif;font-size:1.5rem;letter-spacing:2px;position:relative;padding-left:14px}
+    .section-title::before{content:'';position:absolute;left:0;top:2px;bottom:2px;width:3.5px;background:var(--accent);border-radius:2px}
+    .see-all{color:var(--accent);font-size:.78rem;font-weight:500;cursor:pointer;transition:opacity .2s;letter-spacing:.5px}
+    .see-all:hover{opacity:.65}
+
+    /* CAROUSEL */
+    .carousel-wrap{display:flex;align-items:center;gap:10px}
+    .carousel-arrow{flex:0 0 36px;height:60px;background:rgba(7,7,15,.88);border:1px solid var(--border);color:var(--text);border-radius:9px;cursor:pointer;font-size:1.3rem;display:flex;align-items:center;justify-content:center;transition:background .2s,border-color .2s;backdrop-filter:blur(6px)}
+    .carousel-arrow:hover{background:var(--accent);border-color:var(--accent)}
+    
+    
+
+    /* MOVIE ROW */
+    .movie-row{flex:1;display:flex;gap:13px;overflow-x:auto;padding-bottom:8px;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scroll-behavior:smooth}
+    .movie-row::-webkit-scrollbar{height:0}
+
+    /* CARD */
+    .card{flex:0 0 172px;scroll-snap-align:start;border-radius:var(--radius);overflow:hidden;background:var(--card);cursor:pointer;position:relative;transition:transform .3s,box-shadow .3s;border:1px solid var(--border)}
+    .card:hover{transform:translateY(-9px) scale(1.04);box-shadow:0 22px 55px rgba(229,56,59,.22);z-index:2}
+    .card img{width:100%;aspect-ratio:2/3;object-fit:cover;display:block}
+    .card-no-img{width:100%;aspect-ratio:2/3;background:var(--surface);display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:2.2rem}
+    .card-info{padding:10px 12px 13px}
+    .card-title{font-size:.79rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:6px}
+    .card-meta{display:flex;align-items:center;justify-content:space-between}
+    .card-rating{display:flex;align-items:center;gap:4px;color:var(--gold);font-size:.72rem;font-weight:600}
+    .card-year{color:var(--muted);font-size:.7rem}
+    .card-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(7,7,15,.95) 0%,transparent 55%);opacity:0;transition:opacity .3s;display:flex;align-items:flex-end;padding:14px}
+    .card:hover .card-overlay{opacity:1}
+    .play-icon{background:var(--accent);color:#fff;border:none;border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:.85rem;transition:transform .2s}
+    .play-icon:hover{transform:scale(1.15)}
+
+    /* GENRE */
+    .genre-row{display:flex;gap:9px;flex-wrap:wrap;margin-bottom:22px}
+    .genre-pill{background:var(--surface);border:1px solid var(--border);color:var(--muted);padding:7px 17px;border-radius:20px;font-size:.78rem;font-weight:500;cursor:pointer;transition:all .2s}
+    .genre-pill:hover,.genre-pill.active{background:var(--accent);border-color:var(--accent);color:#fff}
+
+    /* GRID */
+    .movie-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:15px}
+    .movie-grid .card{flex:unset}
+
+    /* MODAL */
+    #modal{display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.92);backdrop-filter:blur(10px);align-items:flex-start;justify-content:center;padding:24px 16px;overflow-y:auto}
+    #modal.open{display:flex}
+    .modal-box{background:var(--surface);border:1px solid var(--border);border-radius:20px;overflow:hidden;max-width:780px;width:100%;animation:modalIn .3s ease;margin:auto}
+    @keyframes modalIn{from{opacity:0;transform:scale(.93) translateY(22px)}to{opacity:1;transform:scale(1) translateY(0)}}
+    #modalBackdrop{position:relative;height:300px;background-size:cover;background-position:center}
+    #modalBackdrop::after{content:'';position:absolute;inset:0;background:linear-gradient(to top,var(--surface) 0%,transparent 60%)}
+    .modal-close-btn{position:absolute;top:14px;right:14px;z-index:2;background:rgba(0,0,0,.65);border:none;color:#fff;width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;transition:background .2s}
+    .modal-close-btn:hover{background:var(--accent)}
+    .modal-body{padding:4px 28px 30px}
+    .modal-title{font-family:'Bebas Neue',sans-serif;font-size:2.2rem;letter-spacing:1px;margin-bottom:10px}
+    .modal-tags{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px}
+    .modal-tag{background:rgba(229,56,59,.12);border:1px solid rgba(229,56,59,.28);color:var(--accent);padding:4px 12px;border-radius:20px;font-size:.72rem}
+    .modal-overview{color:rgba(239,240,246,.68);font-size:.88rem;line-height:1.72;margin-bottom:20px}
+    .modal-stats{display:flex;gap:28px;flex-wrap:wrap;padding:16px 0;margin-bottom:22px;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+    .stat{display:flex;flex-direction:column;gap:4px}
+    .stat-label{color:var(--muted);font-size:.68rem;text-transform:uppercase;letter-spacing:1.2px}
+    .stat-value{font-weight:600;font-size:.92rem}
+    .action-btns{display:flex;gap:10px;flex-wrap:wrap}
+    .btn-watch{background:var(--accent);color:#fff;border:none;cursor:pointer;padding:13px 28px;border-radius:9px;font-size:.88rem;font-weight:600;font-family:'DM Sans',sans-serif;display:flex;align-items:center;gap:8px;transition:background .2s,transform .15s;text-decoration:none}
+    .btn-watch:hover{background:#c8202a;transform:translateY(-1px)}
+    .btn-trailer{background:rgba(255,255,255,.08);color:var(--text);border:1px solid rgba(255,255,255,.13);cursor:pointer;padding:13px 28px;border-radius:9px;font-size:.88rem;font-family:'DM Sans',sans-serif;display:flex;align-items:center;gap:8px;transition:background .2s}
+    .btn-trailer:hover{background:rgba(255,255,255,.16)}
+
+    /* SKELETON */
+    .skeleton{background:linear-gradient(90deg,var(--card) 25%,#1a1a2e 50%,var(--card) 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:var(--radius)}
+    @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+    .sk-card{flex:0 0 172px;height:258px}
+
+    /* TOAST */
+    #toast{position:fixed;bottom:26px;right:26px;z-index:400;background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);padding:12px 20px;border-radius:10px;font-size:.83rem;color:var(--text);transform:translateY(80px);opacity:0;transition:all .35s;max-width:290px}
+    #toast.show{transform:translateY(0);opacity:1}
+
+    #searchSection{display:none}
+
+    footer{border-top:1px solid var(--border);padding:36px 5%;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px}
+    .footer-logo{font-family:'Bebas Neue',sans-serif;font-size:1.5rem;letter-spacing:3px;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+    .footer-text{color:var(--muted);font-size:.76rem}
+
+    @media(max-width:640px){
+      .nav-links{display:none}
+      #searchInput{width:130px}
+      #searchInput:focus{width:170px}
+      .card,.sk-card{flex:0 0 140px}
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">CineVerse</div>
+  <div class="nav-links">
+    <a class="active" onclick="showHome()">Beranda</a>
+    <a onclick="loadSection('popular','Film Populer')">Populer</a>
+    <a onclick="loadSection('top_rated','Top Rated')">Top Rated</a>
+    <a onclick="loadSection('now_playing','Tayang Sekarang')">Bioskop</a>
+    <a onclick="loadSection('upcoming','Segera Hadir')">Upcoming</a>
+  </div>
+  <input type="text" id="searchInput" placeholder="🔍  Cari film..." oninput="handleSearch(this.value)"/>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div id="heroBg"></div>
+  <div class="hero-content">
+    <div class="hero-badge">⭐ Featured</div>
+    <h1 class="hero-title" id="heroTitle">Memuat...</h1>
+    <div class="hero-meta">
+      <span class="hero-rating">⭐ <span id="heroRating">—</span></span>
+      <span class="hero-pill" id="heroYear">—</span>
+      <span class="hero-pill" id="heroGenre">—</span>
+    </div>
+    <p class="hero-overview" id="heroOverview">Memuat sinopsis...</p>
+    <div class="hero-btns">
+      <button class="btn-red" onclick="openHeroDetail()">▶&nbsp; Tonton Sekarang</button>
+      <button class="btn-ghost" onclick="nextHero()">⟳&nbsp; Film Lain</button>
+    </div>
+  </div>
+  <div class="hero-dots" id="heroDots"></div>
+</section>
+
+<!-- MAIN -->
+<main id="mainContent">
+  <div class="section" id="genreSection">
+    <div class="section-header"><h2 class="section-title">Jelajahi Genre</h2></div>
+    <div class="genre-row" id="genreRow"></div>
+    <div class="movie-grid" id="genreGrid"></div>
+  </div>
+  <div class="section">
+    <div class="section-header">
+      <h2 class="section-title">🔥 Trending Minggu Ini</h2>
+      <span class="see-all" onclick="loadSection('trending','Trending')">Lihat Semua →</span>
+    </div>
+    <div class="carousel-wrap">
+      <button class="carousel-arrow left" onclick="scrollRow('trendingRow',-1)">&#8249;</button>
+      <div class="movie-row" id="trendingRow"></div>
+      <button class="carousel-arrow right" onclick="scrollRow('trendingRow',1)">&#8250;</button>
+    </div>
+  </div>
+  <div class="section">
+    <div class="section-header">
+      <h2 class="section-title">🌟 Film Populer</h2>
+      <span class="see-all" onclick="loadSection('popular','Populer')">Lihat Semua →</span>
+    </div>
+    <div class="carousel-wrap">
+      <button class="carousel-arrow left" onclick="scrollRow('popularRow',-1)">&#8249;</button>
+      <div class="movie-row" id="popularRow"></div>
+      <button class="carousel-arrow right" onclick="scrollRow('popularRow',1)">&#8250;</button>
+    </div>
+  </div>
+  <div class="section">
+    <div class="section-header">
+      <h2 class="section-title">🏆 Rating Tertinggi</h2>
+      <span class="see-all" onclick="loadSection('top_rated','Top Rated')">Lihat Semua →</span>
+    </div>
+    <div class="carousel-wrap">
+      <button class="carousel-arrow left" onclick="scrollRow('topRatedRow',-1)">&#8249;</button>
+      <div class="movie-row" id="topRatedRow"></div>
+      <button class="carousel-arrow right" onclick="scrollRow('topRatedRow',1)">&#8250;</button>
+    </div>
+  </div>
+  <div class="section">
+    <div class="section-header">
+      <h2 class="section-title">🎬 Tayang di Bioskop</h2>
+      <span class="see-all" onclick="loadSection('now_playing','Bioskop')">Lihat Semua →</span>
+    </div>
+    <div class="carousel-wrap">
+      <button class="carousel-arrow left" onclick="scrollRow('nowPlayingRow',-1)">&#8249;</button>
+      <div class="movie-row" id="nowPlayingRow"></div>
+      <button class="carousel-arrow right" onclick="scrollRow('nowPlayingRow',1)">&#8250;</button>
+    </div>
+  </div>
+  <div class="section" id="searchSection">
+    <div class="section-header"><h2 class="section-title">🔎 Hasil Pencarian</h2></div>
+    <div class="movie-grid" id="searchGrid"></div>
+  </div>
+</main>
+
+<!-- MODAL -->
+<div id="modal">
+  <div class="modal-box">
+    <div id="modalBackdrop">
+      <button class="modal-close-btn" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <h2 class="modal-title" id="modalTitle"></h2>
+      <div class="modal-tags" id="modalTags"></div>
+      <p class="modal-overview" id="modalOverview"></p>
+      <div class="modal-stats" id="modalStats"></div>
+      <div class="action-btns">
+        <a class="btn-watch" id="watchLink" href="#">▶&nbsp; Tonton Film</a>
+        <button class="btn-trailer" onclick="watchTrailer()">🎬&nbsp; Trailer</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<footer>
+  <div class="footer-logo">CineVerse</div>
+  <div class="footer-text">Data film dari <strong>TMDB</strong> · Dibuat dengan ❤️ · 2026</div>
+</footer>
+
+<script>
+  const API_KEY = '8fa936e44fccebb6750101c3ed4c7d79';
+  const BASE    = 'https://api.themoviedb.org/3';
+  const IMG     = 'https://image.tmdb.org/t/p/';
+  const GENRES  = {28:'Aksi',18:'Drama',35:'Komedi',27:'Horor',878:'Sci-Fi',10749:'Romantis',16:'Animasi',80:'Kriminal',12:'Petualangan',14:'Fantasi',53:'Thriller',10751:'Keluarga'};
+
+  let heroMovies=[], heroIndex=0, heroTimer;
+  let currentHeroMovie=null, currentMovieId=null;
+  let searchTimer=null;
+
+  async function api(path) {
+    const sep = path.includes('?') ? '&' : '?';
+    const res = await fetch(BASE + path + sep + 'api_key=' + API_KEY);
+    return res.json();
+  }
+
+  function skeletons(el, n=8) {
+    el.innerHTML = Array(n).fill('<div class="skeleton sk-card"></div>').join('');
+  }
+
+  function cardHTML(m) {
+    const poster = m.poster_path
+      ? `<img src="${IMG}w342${m.poster_path}" alt="${m.title||m.name}" loading="lazy"/>`
+      : `<div class="card-no-img">🎬</div>`;
+    const year   = (m.release_date||'').slice(0,4) || '—';
+    const rating = m.vote_average ? m.vote_average.toFixed(1) : '—';
+    return `<div class="card" onclick="openModal(${m.id})">
+      ${poster}
+      <div class="card-overlay"><button class="play-icon">▶</button></div>
+      <div class="card-info">
+        <div class="card-title">${m.title||m.name}</div>
+        <div class="card-meta">
+          <span class="card-rating">⭐ ${rating}</span>
+          <span class="card-year">${year}</span>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  async function fillRow(id, path) {
+    const el = document.getElementById(id);
+    skeletons(el);
+    const data = await api(path);
+    el.innerHTML = (data.results||[]).map(cardHTML).join('');
+  }
+
+  function scrollRow(id, dir) {
+    document.getElementById(id).scrollBy({ left: dir * 560, behavior: 'smooth' });
+  }
+
+  /* HERO */
+  async function loadHero() {
+    const data = await api('/trending/movie/week?language=id-ID');
+    heroMovies = (data.results||[]).filter(m => m.backdrop_path).slice(0, 8);
+    buildDots(); setHero(0);
+    heroTimer = setInterval(nextHero, 7500);
+  }
+  function buildDots() {
+    document.getElementById('heroDots').innerHTML =
+      heroMovies.map((_,i) => `<div class="dot ${i===0?'active':''}" onclick="setHero(${i})"></div>`).join('');
+  }
+  function setHero(i) {
+    heroIndex = i;
+    const m = heroMovies[i];
+    currentHeroMovie = m;
+    document.getElementById('heroBg').style.backgroundImage = `url(${IMG}original${m.backdrop_path})`;
+    document.getElementById('heroTitle').textContent    = m.title;
+    document.getElementById('heroRating').textContent   = m.vote_average.toFixed(1);
+    document.getElementById('heroYear').textContent     = (m.release_date||'').slice(0,4) || '—';
+    document.getElementById('heroGenre').textContent    = GENRES[m.genre_ids?.[0]] || 'Film';
+    document.getElementById('heroOverview').textContent = m.overview || 'Tidak ada sinopsis.';
+    document.querySelectorAll('.dot').forEach((d,idx) => d.classList.toggle('active', idx===i));
+  }
+  function nextHero() {
+    clearInterval(heroTimer);
+    setHero((heroIndex + 1) % heroMovies.length);
+    heroTimer = setInterval(nextHero, 7500);
+  }
+  function openHeroDetail() { if (currentHeroMovie) openModal(currentHeroMovie.id); }
+
+  /* MODAL */
+  async function openModal(id) {
+    currentMovieId = id;
+    document.getElementById('modal').classList.add('open');
+    document.body.style.overflow = 'hidden';
+
+    const m = await api(`/movie/${id}?language=id-ID`);
+
+    document.getElementById('modalBackdrop').style.backgroundImage =
+      m.backdrop_path ? `url(${IMG}w1280${m.backdrop_path})` : 'none';
+    document.getElementById('modalTitle').textContent    = m.title;
+    document.getElementById('modalOverview').textContent = m.overview || 'Tidak ada sinopsis.';
+    document.getElementById('modalTags').innerHTML =
+      (m.genres||[]).map(g => `<span class="modal-tag">${g.name}</span>`).join('');
+    document.getElementById('modalStats').innerHTML = `
+      <div class="stat"><span class="stat-label">Rating</span><span class="stat-value" style="color:var(--gold)">⭐ ${m.vote_average?.toFixed(1)||'—'}</span></div>
+      <div class="stat"><span class="stat-label">Tahun</span><span class="stat-value">${(m.release_date||'').slice(0,4)||'—'}</span></div>
+      <div class="stat"><span class="stat-label">Durasi</span><span class="stat-value">${m.runtime ? m.runtime+' menit':'—'}</span></div>
+      <div class="stat"><span class="stat-label">Bahasa</span><span class="stat-value">${m.spoken_languages?.[0]?.name||'—'}</span></div>
+      <div class="stat"><span class="stat-label">Status</span><span class="stat-value">${m.status||'—'}</span></div>
+    `;
+    // Tombol tonton langsung ke watch.html
+    document.getElementById('watchLink').href = `watch.html?id=${id}`;
+  }
+
+  function closeModal() {
+    document.getElementById('modal').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+  document.getElementById('modal').addEventListener('click', e => {
+    if (e.target === document.getElementById('modal')) closeModal();
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeModal();
+  });
+
+  /* TRAILER */
+  async function watchTrailer() {
+    if (!currentMovieId) return;
+    showToast('Mencari trailer...');
+    const data = await api(`/movie/${currentMovieId}/videos`);
+    const t = (data.results||[]).find(v => v.type==='Trailer' && v.site==='YouTube')
+           || (data.results||[])[0];
+    if (t && t.site === 'YouTube') window.open(`https://www.youtube.com/watch?v=${t.key}`, '_blank');
+    else showToast('Trailer tidak tersedia 😔');
+  }
+
+  /* GENRE */
+  function buildGenrePills() {
+    document.getElementById('genreRow').innerHTML =
+      Object.entries(GENRES).map(([id,name]) =>
+        `<span class="genre-pill" onclick="filterGenre(${id},'${name}')">${name}</span>`
+      ).join('');
+  }
+  async function filterGenre(id, name) {
+    document.querySelectorAll('.genre-pill').forEach(p => p.classList.toggle('active', p.textContent===name));
+    const grid = document.getElementById('genreGrid');
+    grid.innerHTML = Array(8).fill('<div class="skeleton" style="height:255px;border-radius:14px"></div>').join('');
+    const data = await api(`/discover/movie?with_genres=${id}&language=id-ID&sort_by=popularity.desc`);
+    grid.innerHTML = (data.results||[]).map(cardHTML).join('');
+    showToast(`Genre: ${name}`);
+  }
+
+  /* SEARCH */
+  function handleSearch(q) {
+    clearTimeout(searchTimer);
+    const sec = document.getElementById('searchSection');
+    if (!q.trim()) { sec.style.display='none'; return; }
+    searchTimer = setTimeout(async () => {
+      sec.style.display = 'block';
+      sec.scrollIntoView({ behavior:'smooth', block:'start' });
+      const grid = document.getElementById('searchGrid');
+      grid.innerHTML = Array(8).fill('<div class="skeleton" style="height:255px;border-radius:14px"></div>').join('');
+      const data = await api(`/search/movie?query=${encodeURIComponent(q)}&language=id-ID`);
+      grid.innerHTML = (data.results||[]).length
+        ? data.results.map(cardHTML).join('')
+        : `<p style="color:var(--muted);grid-column:1/-1;padding:20px 0">Tidak ada hasil untuk "<strong>${q}</strong>"</p>`;
+    }, 480);
+  }
+
+  /* LOAD SECTION */
+  async function loadSection(type, title) {
+    document.getElementById('mainContent').innerHTML = `
+      <div class="section">
+        <div class="section-header">
+          <h2 class="section-title">${title}</h2>
+          <span class="see-all" onclick="showHome()">← Kembali</span>
+        </div>
+        <div class="movie-grid" id="fullGrid"></div>
+        <div style="text-align:center;margin-top:28px">
+          <button class="btn-red" id="loadMoreBtn" style="display:inline-flex" onclick="loadMore('${type}',2)">Muat Lebih Banyak</button>
+        </div>
+      </div>`;
+    const grid = document.getElementById('fullGrid');
+    grid.innerHTML = Array(12).fill('<div class="skeleton" style="height:255px;border-radius:14px"></div>').join('');
+    const path = type==='trending'
+      ? '/trending/movie/week?language=id-ID'
+      : `/movie/${type}?language=id-ID&page=1`;
+    const data = await api(path);
+    grid.innerHTML = (data.results||[]).map(cardHTML).join('');
+    window.scrollTo({ top:0, behavior:'smooth' });
+  }
+  async function loadMore(type, page) {
+    const btn = document.getElementById('loadMoreBtn');
+    btn.textContent = 'Memuat...'; btn.disabled = true;
+    const path = type==='trending'
+      ? `/trending/movie/week?language=id-ID&page=${page}`
+      : `/movie/${type}?language=id-ID&page=${page}`;
+    const data = await api(path);
+    document.getElementById('fullGrid').insertAdjacentHTML('beforeend', (data.results||[]).map(cardHTML).join(''));
+    btn.textContent = 'Muat Lebih Banyak'; btn.disabled = false;
+    btn.onclick = () => loadMore(type, page+1);
+  }
+
+  function showHome() { location.reload(); }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg; t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3200);
+  }
+
+  async function init() {
+    loadHero();
+    buildGenrePills();
+    fillRow('trendingRow',   '/trending/movie/week?language=id-ID');
+    fillRow('popularRow',    '/movie/popular?language=id-ID');
+    fillRow('topRatedRow',   '/movie/top_rated?language=id-ID');
+    fillRow('nowPlayingRow', '/movie/now_playing?language=id-ID');
+  }
+
+  init();
+</script>
+</body>
+</html>
