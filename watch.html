@@ -38,16 +38,11 @@
     /* PLAYER SIDE */
     .player-side{background:#000;display:flex;flex-direction:column}
 
-    /* Player container — this is what we fullscreen */
     #playerContainer{
       position:relative;width:100%;aspect-ratio:16/9;background:#000;
-      /* Needed for fullscreen to work on the container */
     }
-
-    /* When fullscreen is active, make container fill screen */
     #playerContainer:-webkit-full-screen{width:100vw;height:100vh;aspect-ratio:unset}
     #playerContainer:-moz-full-screen{width:100vw;height:100vh;aspect-ratio:unset}
-    #playerContainer:-ms-fullscreen{width:100vw;height:100vh;aspect-ratio:unset}
     #playerContainer:fullscreen{width:100vw;height:100vh;aspect-ratio:unset}
 
     #playerContainer iframe{
@@ -55,7 +50,6 @@
       width:100%;height:100%;border:none;display:block;
     }
 
-    /* Loading overlay */
     #playerLoading{
       position:absolute;inset:0;display:flex;flex-direction:column;
       align-items:center;justify-content:center;gap:14px;
@@ -66,7 +60,6 @@
     @keyframes spin{to{transform:rotate(360deg)}}
     .loading-text{color:var(--muted);font-size:.85rem}
 
-    /* Fullscreen button overlay */
     #fsBtn{
       position:absolute;bottom:14px;right:14px;z-index:4;
       background:rgba(0,0,0,.75);border:1px solid rgba(255,255,255,.2);
@@ -78,8 +71,6 @@
     }
     #playerContainer:hover #fsBtn{opacity:1}
     #fsBtn:hover{background:var(--accent);border-color:var(--accent)}
-
-    /* In fullscreen, always show the button */
     #playerContainer:fullscreen #fsBtn,
     #playerContainer:-webkit-full-screen #fsBtn{opacity:1}
 
@@ -92,6 +83,24 @@
     .pi-overview{color:rgba(239,240,246,.62);font-size:.86rem;line-height:1.7;margin-bottom:20px}
     .pi-genres{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:18px}
     .pi-genre{background:rgba(229,56,59,.1);border:1px solid rgba(229,56,59,.25);color:var(--accent);padding:4px 12px;border-radius:20px;font-size:.72rem}
+
+    /* Episode selector (TV only) */
+    .ep-section{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px 20px;margin-bottom:16px}
+    .ep-title{font-size:.72rem;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:12px}
+    .ep-controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+    .ep-select{
+      background:var(--card);border:1px solid var(--border);color:var(--text);
+      padding:8px 14px;border-radius:8px;font-size:.78rem;
+      font-family:'DM Sans',sans-serif;cursor:pointer;outline:none;
+    }
+    .ep-select:hover,.ep-select:focus{border-color:rgba(229,56,59,.5)}
+    .ep-btn{
+      background:var(--accent);color:#fff;border:none;
+      padding:8px 18px;border-radius:8px;font-size:.78rem;
+      cursor:pointer;font-family:'DM Sans',sans-serif;
+      transition:background .2s;
+    }
+    .ep-btn:hover{background:#c8202a}
 
     /* Server selector */
     .server-section{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px 20px}
@@ -135,12 +144,10 @@
 
   <!-- PLAYER SIDE -->
   <div class="player-side">
-
-    <!-- Player container (ini yang di-fullscreen) -->
     <div id="playerContainer">
       <div id="playerLoading">
         <div class="spinner"></div>
-        <span class="loading-text">Memuat film...</span>
+        <span class="loading-text">Memuat...</span>
       </div>
       <iframe
         id="playerFrame"
@@ -150,22 +157,19 @@
         allow="autoplay; fullscreen; picture-in-picture; encrypted-media"
         sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-presentation allow-top-navigation"
       ></iframe>
-      <!-- Fullscreen button -->
       <button id="fsBtn" onclick="toggleFullscreen()">⛶ Layar Penuh</button>
     </div>
 
-    <!-- Info di bawah player -->
     <div class="player-info" id="playerInfo">
       <div class="skeleton" style="height:34px;width:55%;margin-bottom:12px;border-radius:6px"></div>
       <div class="skeleton" style="height:16px;width:40%;margin-bottom:18px;border-radius:6px"></div>
       <div class="skeleton" style="height:65px;width:100%;border-radius:6px"></div>
     </div>
-
   </div>
 
   <!-- SIDEBAR -->
   <div class="sidebar">
-    <div class="sidebar-header">Film Rekomendasi</div>
+    <div class="sidebar-header" id="sidebarHeader">Rekomendasi</div>
     <div id="recList"></div>
   </div>
 
@@ -178,7 +182,7 @@
   const BASE    = 'https://api.themoviedb.org/3';
   const IMG     = 'https://image.tmdb.org/t/p/';
 
-  const SERVERS = [
+  const MOVIE_SERVERS = [
     { name:'Server 1', url: id => `https://vidsrc.cc/v2/embed/movie/${id}` },
     { name:'Server 2', url: id => `https://vidsrc.xyz/embed/movie/${id}` },
     { name:'Server 3', url: id => `https://embed.su/embed/movie/${id}` },
@@ -187,7 +191,18 @@
     { name:'Server 6', url: id => `https://vidsrc.me/embed/movie?tmdb=${id}` },
   ];
 
-  let currentId = null, activeServer = 0;
+  const TV_SERVERS = [
+    { name:'Server 1', url: (id,s,e) => `https://vidsrc.cc/v2/embed/tv/${id}/${s}/${e}` },
+    { name:'Server 2', url: (id,s,e) => `https://vidsrc.xyz/embed/tv/${id}/${s}/${e}` },
+    { name:'Server 3', url: (id,s,e) => `https://embed.su/embed/tv/${id}/${s}/${e}` },
+    { name:'Server 4', url: (id,s,e) => `https://multiembed.mov/?video_id=${id}&tmdb=1&s=${s}&e=${e}` },
+    { name:'Server 5', url: (id,s,e) => `https://player.videasy.net/tv/${id}/${s}/${e}` },
+    { name:'Server 6', url: (id,s,e) => `https://vidsrc.me/embed/tv?tmdb=${id}&season=${s}&episode=${e}` },
+  ];
+
+  let currentId = null, activeServer = 0, mediaType = 'movie';
+  let currentSeason = 1, currentEpisode = 1;
+  let tvInfo = null;
 
   async function api(path) {
     const sep = path.includes('?') ? '&' : '?';
@@ -197,7 +212,13 @@
 
   function getParams() {
     const p = new URLSearchParams(window.location.search);
-    return { id: p.get('id'), server: parseInt(p.get('server') || '0') };
+    return {
+      id:     p.get('id'),
+      server: parseInt(p.get('server') || '0'),
+      type:   p.get('type') || 'movie',
+      season: parseInt(p.get('season') || '1'),
+      ep:     parseInt(p.get('ep') || '1'),
+    };
   }
 
   function goHome() { window.location.href = 'index.html'; }
@@ -205,33 +226,17 @@
   /* ── FULLSCREEN ── */
   function toggleFullscreen() {
     const container = document.getElementById('playerContainer');
-    const btn = document.getElementById('fsBtn');
-
-    const isFs = !!(
-      document.fullscreenElement ||
-      document.webkitFullscreenElement ||
-      document.mozFullScreenElement ||
-      document.msFullscreenElement
-    );
-
+    const isFs = !!(document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement);
     if (!isFs) {
-      // Masuk fullscreen
       if (container.requestFullscreen)            container.requestFullscreen();
       else if (container.webkitRequestFullscreen) container.webkitRequestFullscreen();
       else if (container.mozRequestFullScreen)    container.mozRequestFullScreen();
-      else if (container.msRequestFullscreen)     container.msRequestFullscreen();
-      btn.textContent = '⊠ Keluar Layar Penuh';
     } else {
-      // Keluar fullscreen
       if (document.exitFullscreen)            document.exitFullscreen();
       else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
       else if (document.mozCancelFullScreen)  document.mozCancelFullScreen();
-      else if (document.msExitFullscreen)     document.msExitFullscreen();
-      btn.textContent = '⛶ Layar Penuh';
     }
   }
-
-  // Update teks tombol saat berubah (misal tekan ESC)
   document.addEventListener('fullscreenchange',       updateFsBtn);
   document.addEventListener('webkitfullscreenchange', updateFsBtn);
   document.addEventListener('mozfullscreenchange',    updateFsBtn);
@@ -241,38 +246,70 @@
   }
 
   /* ── LOAD PLAYER ── */
-  function loadPlayer(id, serverIdx) {
+  function loadPlayer() {
     const loading = document.getElementById('playerLoading');
     const frame   = document.getElementById('playerFrame');
     loading.classList.remove('hidden');
     frame.src = '';
     setTimeout(() => {
-      frame.src = SERVERS[serverIdx].url(id);
+      if (mediaType === 'movie') {
+        frame.src = MOVIE_SERVERS[activeServer].url(currentId);
+      } else {
+        frame.src = TV_SERVERS[activeServer].url(currentId, currentSeason, currentEpisode);
+      }
     }, 100);
-    // Hide loading after 3s regardless
     setTimeout(() => loading.classList.add('hidden'), 3000);
+
+    // Update URL
+    const url = new URL(window.location);
+    url.searchParams.set('server', activeServer);
+    if (mediaType === 'tv') {
+      url.searchParams.set('season', currentSeason);
+      url.searchParams.set('ep', currentEpisode);
+    }
+    window.history.replaceState({}, '', url);
   }
 
-  frame_onload: {
-    document.getElementById('playerFrame').addEventListener('load', () => {
-      document.getElementById('playerLoading').classList.add('hidden');
-    });
-  }
+  document.getElementById('playerFrame').addEventListener('load', () => {
+    document.getElementById('playerLoading').classList.add('hidden');
+  });
 
   /* ── SWITCH SERVER ── */
   function switchServer(i) {
     activeServer = i;
     document.querySelectorAll('.srv-btn').forEach((b,idx) => b.classList.toggle('active', idx===i));
-    loadPlayer(currentId, i);
-    showToast(`Beralih ke ${SERVERS[i].name}...`);
-    const url = new URL(window.location);
-    url.searchParams.set('server', i);
-    window.history.replaceState({}, '', url);
+    loadPlayer();
+    showToast(`Beralih ke ${(mediaType==='movie'?MOVIE_SERVERS:TV_SERVERS)[i].name}...`);
+  }
+
+  /* ── SWITCH EPISODE ── */
+  function switchEpisode() {
+    currentSeason  = parseInt(document.getElementById('seasonSel')?.value  || 1);
+    currentEpisode = parseInt(document.getElementById('episodeSel')?.value || 1);
+    loadPlayer();
+    showToast(`Memuat S${currentSeason}E${currentEpisode}...`);
+  }
+
+  /* Build episode dropdown based on season selection */
+  async function onSeasonChange() {
+    const seasonSel  = document.getElementById('seasonSel');
+    const episodeSel = document.getElementById('episodeSel');
+    if (!seasonSel || !episodeSel || !tvInfo) return;
+    const sNum = parseInt(seasonSel.value);
+    const season = tvInfo.seasons?.find(s => s.season_number === sNum);
+    const epCount = season?.episode_count || 12;
+    episodeSel.innerHTML = Array.from({length: epCount}, (_,i) =>
+      `<option value="${i+1}" ${i+1===currentEpisode&&sNum===currentSeason?'selected':''}>Episode ${i+1}</option>`
+    ).join('');
+    currentSeason = sNum;
+    currentEpisode = 1;
+    episodeSel.value = '1';
   }
 
   /* ── MOVIE INFO ── */
   async function loadMovieInfo(id) {
     const m = await api(`/movie/${id}?language=id-ID`);
+    const servers = MOVIE_SERVERS;
     const info = document.getElementById('playerInfo');
     info.innerHTML = `
       <h1 class="pi-title">${m.title}</h1>
@@ -289,18 +326,72 @@
       <div class="server-section">
         <p class="server-title">Ganti Server — jika film tidak muncul</p>
         <div class="server-grid" id="serverGrid"></div>
-        <p class="server-note">⚠️ Server pihak ketiga, film mungkin tidak selalu tersedia. Coba server lain jika layar kosong.</p>
+        <p class="server-note">⚠️ Server pihak ketiga. Coba server lain jika layar kosong.</p>
       </div>
     `;
     document.title = `${m.title} — CineVerse`;
     document.getElementById('serverGrid').innerHTML =
-      SERVERS.map((s,i) => `<button class="srv-btn ${i===activeServer?'active':''}" onclick="switchServer(${i})">${s.name}</button>`).join('');
+      servers.map((s,i) => `<button class="srv-btn ${i===activeServer?'active':''}" onclick="switchServer(${i})">${s.name}</button>`).join('');
+    loadRecommendations(id, m.genres?.[0]?.id, 'movie');
+  }
 
-    loadRecommendations(id, m.genres?.[0]?.id);
+  /* ── TV INFO ── */
+  async function loadTVInfo(id) {
+    const m = await api(`/tv/${id}?language=id-ID`);
+    tvInfo = m;
+    const servers = TV_SERVERS;
+    const seasons = (m.seasons||[]).filter(s => s.season_number > 0);
+
+    const seasonOpts = seasons.map(s =>
+      `<option value="${s.season_number}" ${s.season_number===currentSeason?'selected':''}>${s.name||'Season '+s.season_number} (${s.episode_count} ep)</option>`
+    ).join('');
+
+    const curSeason = seasons.find(s => s.season_number === currentSeason) || seasons[0];
+    const epCount   = curSeason?.episode_count || 12;
+    const epOpts    = Array.from({length: epCount}, (_,i) =>
+      `<option value="${i+1}" ${i+1===currentEpisode?'selected':''}>Episode ${i+1}</option>`
+    ).join('');
+
+    document.getElementById('sidebarHeader').textContent = m.name || 'Rekomendasi';
+
+    const info = document.getElementById('playerInfo');
+    info.innerHTML = `
+      <h1 class="pi-title">${m.name}</h1>
+      <div class="pi-meta">
+        <span class="pi-rating">⭐ ${m.vote_average?.toFixed(1)||'—'}</span>
+        <span class="pi-pill">${(m.first_air_date||'').slice(0,4)||'—'}</span>
+        <span class="pi-pill">${m.number_of_seasons||'—'} Season</span>
+        <span class="pi-pill">${m.number_of_episodes||'—'} Episode</span>
+        <span class="pi-pill">${m.status||'—'}</span>
+      </div>
+      <div class="pi-genres">
+        ${(m.genres||[]).map(g=>`<span class="pi-genre">${g.name}</span>`).join('')}
+      </div>
+      <p class="pi-overview">${m.overview||'Tidak ada sinopsis.'}</p>
+
+      <div class="ep-section">
+        <p class="ep-title">Pilih Season &amp; Episode</p>
+        <div class="ep-controls">
+          <select class="ep-select" id="seasonSel" onchange="onSeasonChange()">${seasonOpts}</select>
+          <select class="ep-select" id="episodeSel">${epOpts}</select>
+          <button class="ep-btn" onclick="switchEpisode()">▶ Tonton</button>
+        </div>
+      </div>
+
+      <div class="server-section">
+        <p class="server-title">Ganti Server</p>
+        <div class="server-grid" id="serverGrid"></div>
+        <p class="server-note">⚠️ Server pihak ketiga. Coba server lain jika layar kosong.</p>
+      </div>
+    `;
+    document.title = `${m.name} — CineVerse`;
+    document.getElementById('serverGrid').innerHTML =
+      servers.map((s,i) => `<button class="srv-btn ${i===activeServer?'active':''}" onclick="switchServer(${i})">${s.name}</button>`).join('');
+    loadRecommendations(id, m.genres?.[0]?.id, 'tv');
   }
 
   /* ── RECOMMENDATIONS ── */
-  async function loadRecommendations(id, genreId) {
+  async function loadRecommendations(id, genreId, type) {
     const list = document.getElementById('recList');
     list.innerHTML = Array(5).fill(`
       <div style="display:flex;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border)">
@@ -312,9 +403,9 @@
         </div>
       </div>`).join('');
 
-    let data = await api(`/movie/${id}/recommendations?language=id-ID`);
+    let data = await api(`/${type}/${id}/recommendations?language=id-ID`);
     if (!data.results?.length && genreId) {
-      data = await api(`/discover/movie?with_genres=${genreId}&language=id-ID&sort_by=popularity.desc`);
+      data = await api(`/discover/${type}?with_genres=${genreId}&language=id-ID&sort_by=popularity.desc`);
     }
     const movies = (data.results||[]).filter(m => m.id != id).slice(0, 15);
     if (!movies.length) {
@@ -323,15 +414,17 @@
     }
     list.innerHTML = movies.map(m => {
       const poster = m.poster_path
-        ? `<img class="rec-poster" src="${IMG}w185${m.poster_path}" alt="${m.title}" loading="lazy"/>`
+        ? `<img class="rec-poster" src="${IMG}w185${m.poster_path}" alt="${m.title||m.name}" loading="lazy"/>`
         : `<div class="rec-poster-ph">🎬</div>`;
-      return `<div class="rec-card" onclick="watchMovie(${m.id})">
+      const title = m.title || m.name;
+      const year  = (m.release_date||m.first_air_date||'').slice(0,4) || '—';
+      return `<div class="rec-card" onclick="watchContent(${m.id},'${type}')">
         ${poster}
         <div class="rec-info">
-          <div class="rec-title">${m.title||m.name}</div>
+          <div class="rec-title">${title}</div>
           <div class="rec-meta">
             <span class="rec-rating">⭐ ${m.vote_average?.toFixed(1)||'—'}</span>
-            <span class="rec-year">${(m.release_date||'').slice(0,4)||'—'}</span>
+            <span class="rec-year">${year}</span>
           </div>
           <div class="rec-desc">${m.overview||'—'}</div>
         </div>
@@ -339,8 +432,8 @@
     }).join('');
   }
 
-  function watchMovie(id) {
-    window.location.href = `watch.html?id=${id}&server=0`;
+  function watchContent(id, type='movie') {
+    window.location.href = `watch.html?id=${id}&type=${type}&server=0`;
   }
 
   function showToast(msg) {
@@ -350,13 +443,23 @@
   }
 
   /* ── INIT ── */
-  const { id, server } = getParams();
-  if (!id) { goHome(); }
-  else {
-    currentId = id;
-    activeServer = server;
-    loadPlayer(id, server);
-    loadMovieInfo(id);
+  const params = getParams();
+  if (!params.id) {
+    goHome();
+  } else {
+    currentId      = params.id;
+    activeServer   = params.server;
+    mediaType      = params.type;
+    currentSeason  = params.season;
+    currentEpisode = params.ep;
+
+    loadPlayer();
+
+    if (mediaType === 'tv') {
+      loadTVInfo(currentId);
+    } else {
+      loadMovieInfo(currentId);
+    }
   }
 </script>
 </body>
