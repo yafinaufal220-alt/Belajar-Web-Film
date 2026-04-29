@@ -10,8 +10,6 @@
 html{scroll-behavior:smooth}
 body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;overflow-x:hidden}
 ::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--accent);border-radius:3px}
-
-/* NAV */
 nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 5%;height:64px;background:linear-gradient(to bottom,rgba(7,7,15,.97) 70%,transparent);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
 .logo{font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:4px;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;cursor:pointer;text-decoration:none}
 .nav-links{display:flex;gap:28px}
@@ -20,8 +18,6 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 #searchInput{background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:10px;color:var(--text);padding:9px 16px;font-size:.83rem;width:200px;outline:none;transition:border-color .25s,width .3s;font-family:'DM Sans',sans-serif}
 #searchInput:focus{border-color:rgba(229,56,59,.6);width:260px}
 #searchInput::placeholder{color:var(--muted)}
-
-/* HERO */
 #hero{position:relative;height:92vh;min-height:580px;display:flex;align-items:flex-end;padding:0 5% 80px;overflow:hidden}
 #heroBg{position:absolute;inset:0;background-size:cover;background-position:center top;transition:opacity 1s}
 #heroBg::after{content:'';position:absolute;inset:0;background:linear-gradient(to right,rgba(7,7,15,.96) 32%,rgba(7,7,15,.3) 65%,transparent),linear-gradient(to top,rgba(7,7,15,1) 0%,rgba(7,7,15,.4) 40%,transparent 65%)}
@@ -40,25 +36,19 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 .hero-dots{position:absolute;bottom:30px;right:5%;z-index:3;display:flex;gap:8px;align-items:center}
 .dot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.3);cursor:pointer;transition:background .3s,width .3s,border-radius .3s}
 .dot.active{background:var(--accent);width:22px;border-radius:4px}
-
-/* MAIN */
 main{padding:0 5% 90px}
 .section{margin-bottom:52px}
 .section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
 .section-title{font-family:'Bebas Neue',sans-serif;font-size:1.5rem;letter-spacing:2px;position:relative;padding-left:14px}
 .section-title::before{content:'';position:absolute;left:0;top:2px;bottom:2px;width:3.5px;background:var(--accent);border-radius:2px}
-.see-all{color:var(--accent);font-size:.78rem;font-weight:500;cursor:pointer;transition:opacity .2s;letter-spacing:.5px;text-decoration:none}
+.see-all{color:var(--accent);font-size:.78rem;font-weight:500;transition:opacity .2s;letter-spacing:.5px;text-decoration:none}
 .see-all:hover{opacity:.65}
-
-/* CAROUSEL */
 .carousel-wrap{display:flex;align-items:center;gap:10px}
 .carousel-arrow{flex:0 0 36px;height:60px;background:rgba(7,7,15,.88);border:1px solid var(--border);color:var(--text);border-radius:9px;cursor:pointer;font-size:1.3rem;display:flex;align-items:center;justify-content:center;transition:background .2s,border-color .2s;backdrop-filter:blur(6px)}
 .carousel-arrow:hover{background:var(--accent);border-color:var(--accent)}
 .movie-row{flex:1;display:flex;gap:13px;overflow-x:auto;padding-bottom:8px;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scroll-behavior:smooth}
 .movie-row::-webkit-scrollbar{height:0}
 .movie-row .card{flex:0 0 172px;scroll-snap-align:start}
-
-/* CARD */
 .card{border-radius:var(--radius);overflow:hidden;background:var(--card);cursor:pointer;position:relative;transition:transform .3s,box-shadow .3s;border:1px solid var(--border)}
 .card:hover{transform:translateY(-9px);box-shadow:0 22px 55px rgba(229,56,59,.22)}
 .card img{width:100%;aspect-ratio:2/3;object-fit:cover;display:block}
@@ -68,27 +58,21 @@ main{padding:0 5% 90px}
 .card-meta{display:flex;align-items:center;justify-content:space-between}
 .card-rating{display:flex;align-items:center;gap:4px;color:var(--gold);font-size:.72rem;font-weight:600}
 .card-year{color:var(--muted);font-size:.7rem}
-/* Hover slide (no play icon) */
-.card-hover-slide{position:absolute;left:0;right:0;bottom:0;background:linear-gradient(to top,rgba(7,7,15,.98) 0%,rgba(13,13,28,.9) 55%,transparent 100%);padding:38px 12px 12px;transform:translateY(100%);transition:transform .3s cubic-bezier(0.4,0,0.2,1);z-index:4;pointer-events:none}
+.card-hover-slide{position:absolute;left:0;right:0;bottom:0;z-index:4;pointer-events:none;transform:translateY(100%);transition:transform .33s cubic-bezier(0.4,0,0.2,1)}
 .card:hover .card-hover-slide{transform:translateY(0)}
-.hover-genres{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px}
-.hover-genre-tag{background:rgba(229,56,59,.18);border:1px solid rgba(229,56,59,.38);color:#ff7b7d;padding:2px 8px;border-radius:10px;font-size:.62rem;font-weight:500}
-.hover-rating{color:var(--gold);font-size:.72rem;font-weight:600}
-
-/* GENRE PILLS (home only) */
+.slide-grad{height:64px;background:linear-gradient(to bottom,transparent 0%,rgba(7,7,15,.08) 18%,rgba(7,7,15,.48) 52%,rgba(7,7,15,.9) 88%,rgba(7,7,15,.97) 100%)}
+.slide-body{background:rgba(7,7,15,.97);padding:6px 11px 10px}
+.hover-genres{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:5px}
+.hover-genre-tag{background:rgba(229,56,59,.16);border:1px solid rgba(229,56,59,.34);color:#ff8a8c;padding:2px 8px;border-radius:10px;font-size:.61rem;font-weight:500}
+.hover-overview{color:rgba(239,240,246,.68);font-size:.67rem;line-height:1.52;margin-bottom:5px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.hover-rating{color:var(--gold);font-size:.71rem;font-weight:600}
 .genre-row{display:flex;gap:9px;flex-wrap:wrap;margin-bottom:22px}
 .genre-pill{background:var(--surface);border:1px solid var(--border);color:var(--muted);padding:7px 17px;border-radius:20px;font-size:.78rem;font-weight:500;cursor:pointer;transition:all .2s;user-select:none}
 .genre-pill:hover,.genre-pill.active{background:var(--accent);border-color:var(--accent);color:#fff}
-
-/* GRID */
 .movie-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:15px}
-
-/* SKELETON */
 .skeleton{background:linear-gradient(90deg,var(--card) 25%,#1a1a2e 50%,var(--card) 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:var(--radius)}
 @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
 .sk-card{flex:0 0 172px;height:258px}
-
-/* MODAL */
 #modal{display:none;position:fixed;inset:0;z-index:300;background:rgba(0,0,0,.92);backdrop-filter:blur(10px);align-items:flex-start;justify-content:center;padding:24px 16px;overflow-y:auto}
 #modal.open{display:flex}
 .modal-box{background:var(--surface);border:1px solid var(--border);border-radius:20px;overflow:hidden;max-width:780px;width:100%;animation:modalIn .3s ease;margin:auto}
@@ -111,8 +95,6 @@ main{padding:0 5% 90px}
 .btn-watch:hover{background:#c8202a;transform:translateY(-1px)}
 .btn-trailer{background:rgba(255,255,255,.08);color:var(--text);border:1px solid rgba(255,255,255,.13);cursor:pointer;padding:13px 28px;border-radius:9px;font-size:.88rem;font-family:'DM Sans',sans-serif;display:flex;align-items:center;gap:8px;transition:background .2s}
 .btn-trailer:hover{background:rgba(255,255,255,.16)}
-
-/* TOAST */
 #toast{position:fixed;bottom:26px;right:26px;z-index:400;background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);padding:12px 20px;border-radius:10px;font-size:.83rem;color:var(--text);transform:translateY(80px);opacity:0;transition:all .35s;max-width:290px}
 #toast.show{transform:translateY(0);opacity:1}
 #searchSection{display:none}
@@ -123,7 +105,6 @@ footer{border-top:1px solid var(--border);padding:36px 5%;display:flex;justify-c
 </style>
 </head>
 <body>
-
 <nav>
   <a class="logo" href="index.html">CineVerse</a>
   <div class="nav-links">
@@ -133,23 +114,23 @@ footer{border-top:1px solid var(--border);padding:36px 5%;display:flex;justify-c
     <a href="anime.html">Anime</a>
     <a href="donghua.html">Donghua</a>
   </div>
-  <input type="text" id="searchInput" placeholder="🔍  Cari film..." oninput="handleSearch(this.value)"/>
+  <input type="text" id="searchInput" placeholder="🔍  Cari..." oninput="handleSearch(this.value)"/>
 </nav>
 
 <section id="hero">
   <div id="heroBg"></div>
   <div class="hero-content">
-    <div class="hero-badge">⭐ Featured</div>
+    <div class="hero-badge">&#11088; Featured</div>
     <h1 class="hero-title" id="heroTitle">Memuat...</h1>
     <div class="hero-meta">
-      <span class="hero-rating">⭐ <span id="heroRating">—</span></span>
-      <span class="hero-pill" id="heroYear">—</span>
-      <span class="hero-pill" id="heroGenre">—</span>
+      <span class="hero-rating">&#11088; <span id="heroRating">--</span></span>
+      <span class="hero-pill" id="heroYear">--</span>
+      <span class="hero-pill" id="heroGenre">--</span>
     </div>
     <p class="hero-overview" id="heroOverview">Memuat sinopsis...</p>
     <div class="hero-btns">
-      <button class="btn-red" onclick="openHeroDetail()">▶&nbsp; Tonton Sekarang</button>
-      <button class="btn-ghost" onclick="nextHero()">⟳&nbsp; Film Lain</button>
+      <button class="btn-red" onclick="openHeroDetail()">&#9654;&nbsp; Tonton Sekarang</button>
+      <button class="btn-ghost" onclick="nextHero()">&#8635;&nbsp; Film Lain</button>
     </div>
   </div>
   <div class="hero-dots" id="heroDots"></div>
@@ -163,30 +144,52 @@ footer{border-top:1px solid var(--border);padding:36px 5%;display:flex;justify-c
   </div>
   <div class="section">
     <div class="section-header">
-      <h2 class="section-title">🔥 Trending Minggu Ini</h2>
-      <a class="see-all" href="movie.html">Lihat Semua →</a>
+      <h2 class="section-title">&#127916; Film Trending</h2>
+      <a class="see-all" href="movie.html">Lihat Semua &#8594;</a>
     </div>
     <div class="carousel-wrap">
-      <button class="carousel-arrow" onclick="scrollRow('trendRow',-1)">&#8249;</button>
-      <div class="movie-row" id="trendRow"></div>
-      <button class="carousel-arrow" onclick="scrollRow('trendRow',1)">&#8250;</button>
+      <button class="carousel-arrow" onclick="scrollRow('movieRow',-1)">&#8249;</button>
+      <div class="movie-row" id="movieRow"></div>
+      <button class="carousel-arrow" onclick="scrollRow('movieRow',1)">&#8250;</button>
     </div>
   </div>
   <div class="section">
     <div class="section-header">
-      <h2 class="section-title">🌟 Film Populer</h2>
-      <a class="see-all" href="movie.html">Lihat Semua →</a>
+      <h2 class="section-title">&#128250; TV Series Terpopuler</h2>
+      <a class="see-all" href="tv.html">Lihat Semua &#8594;</a>
     </div>
     <div class="carousel-wrap">
-      <button class="carousel-arrow" onclick="scrollRow('popularRow',-1)">&#8249;</button>
-      <div class="movie-row" id="popularRow"></div>
-      <button class="carousel-arrow" onclick="scrollRow('popularRow',1)">&#8250;</button>
+      <button class="carousel-arrow" onclick="scrollRow('tvRow',-1)">&#8249;</button>
+      <div class="movie-row" id="tvRow"></div>
+      <button class="carousel-arrow" onclick="scrollRow('tvRow',1)">&#8250;</button>
     </div>
   </div>
   <div class="section">
     <div class="section-header">
-      <h2 class="section-title">🏆 Rating Tertinggi</h2>
-      <a class="see-all" href="movie.html">Lihat Semua →</a>
+      <h2 class="section-title">&#26085; Anime Terpopuler</h2>
+      <a class="see-all" href="anime.html">Lihat Semua &#8594;</a>
+    </div>
+    <div class="carousel-wrap">
+      <button class="carousel-arrow" onclick="scrollRow('animeRow',-1)">&#8249;</button>
+      <div class="movie-row" id="animeRow"></div>
+      <button class="carousel-arrow" onclick="scrollRow('animeRow',1)">&#8250;</button>
+    </div>
+  </div>
+  <div class="section">
+    <div class="section-header">
+      <h2 class="section-title">&#36002; Donghua Terpopuler</h2>
+      <a class="see-all" href="donghua.html">Lihat Semua &#8594;</a>
+    </div>
+    <div class="carousel-wrap">
+      <button class="carousel-arrow" onclick="scrollRow('donghuaRow',-1)">&#8249;</button>
+      <div class="movie-row" id="donghuaRow"></div>
+      <button class="carousel-arrow" onclick="scrollRow('donghuaRow',1)">&#8250;</button>
+    </div>
+  </div>
+  <div class="section">
+    <div class="section-header">
+      <h2 class="section-title">&#127942; Rating Tertinggi</h2>
+      <a class="see-all" href="movie.html">Lihat Semua &#8594;</a>
     </div>
     <div class="carousel-wrap">
       <button class="carousel-arrow" onclick="scrollRow('topRow',-1)">&#8249;</button>
@@ -196,8 +199,8 @@ footer{border-top:1px solid var(--border);padding:36px 5%;display:flex;justify-c
   </div>
   <div class="section">
     <div class="section-header">
-      <h2 class="section-title">🎬 Tayang di Bioskop</h2>
-      <a class="see-all" href="movie.html">Lihat Semua →</a>
+      <h2 class="section-title">&#127907; Tayang di Bioskop</h2>
+      <a class="see-all" href="movie.html">Lihat Semua &#8594;</a>
     </div>
     <div class="carousel-wrap">
       <button class="carousel-arrow" onclick="scrollRow('nowRow',-1)">&#8249;</button>
@@ -206,153 +209,144 @@ footer{border-top:1px solid var(--border);padding:36px 5%;display:flex;justify-c
     </div>
   </div>
   <div class="section" id="searchSection">
-    <div class="section-header"><h2 class="section-title">🔎 Hasil Pencarian</h2></div>
+    <div class="section-header"><h2 class="section-title">Hasil Pencarian</h2></div>
     <div class="movie-grid" id="searchGrid"></div>
   </div>
 </main>
 
 <div id="modal">
   <div class="modal-box">
-    <div id="modalBackdrop"><button class="modal-close-btn" onclick="closeModal()">✕</button></div>
+    <div id="modalBackdrop"><button class="modal-close-btn" onclick="closeModal()">&#10005;</button></div>
     <div class="modal-body">
       <h2 class="modal-title" id="modalTitle"></h2>
       <div class="modal-tags" id="modalTags"></div>
       <p class="modal-overview" id="modalOverview"></p>
       <div class="modal-stats" id="modalStats"></div>
       <div class="action-btns">
-        <a class="btn-watch" id="watchLink" href="#">▶&nbsp; Tonton Film</a>
-        <button class="btn-trailer" onclick="watchTrailer()">🎬&nbsp; Trailer</button>
+        <a class="btn-watch" id="watchLink" href="#">&#9654;&nbsp; Tonton</a>
+        <button class="btn-trailer" onclick="watchTrailer()">&#127916;&nbsp; Trailer</button>
       </div>
     </div>
   </div>
 </div>
 <div id="toast"></div>
-
 <footer>
   <div class="footer-logo">CineVerse</div>
-  <div class="footer-text">Data dari <strong>TMDB</strong> · Dibuat dengan ❤️ · 2026</div>
+  <div class="footer-text">Data dari <strong>TMDB</strong> &middot; Dibuat dengan &#10084;&#65039; &middot; 2026</div>
 </footer>
 
 <script>
-const KEY='8fa936e44fccebb6750101c3ed4c7d79', BASE='https://api.themoviedb.org/3', IMG='https://image.tmdb.org/t/p/';
-const GENRES={28:'Aksi',12:'Petualangan',16:'Animasi',35:'Komedi',80:'Kriminal',99:'Dokumenter',18:'Drama',10751:'Keluarga',14:'Fantasi',36:'Sejarah',27:'Horor',10402:'Musik',9648:'Misteri',10749:'Romantis',878:'Sci-Fi',53:'Thriller',10752:'Perang',37:'Western'};
+const KEY='8fa936e44fccebb6750101c3ed4c7d79',BASE='https://api.themoviedb.org/3',IMG='https://image.tmdb.org/t/p/';
+const MOVIE_G={28:'Aksi',12:'Petualangan',16:'Animasi',35:'Komedi',80:'Kriminal',99:'Dokumenter',18:'Drama',10751:'Keluarga',14:'Fantasi',36:'Sejarah',27:'Horor',10402:'Musik',9648:'Misteri',10749:'Romantis',878:'Sci-Fi',53:'Thriller',10752:'Perang',37:'Western'};
+const TV_G={10759:'Aksi & Petualangan',35:'Komedi',80:'Kriminal',99:'Dokumenter',18:'Drama',10751:'Keluarga',10762:'Anak-anak',9648:'Misteri',10764:'Reality',10765:'Sci-Fi & Fantasi',10768:'Perang & Politik',37:'Western'};
+const ANIME_G={16:'Animasi',10759:'Aksi',35:'Komedi',18:'Drama',10765:'Fantasi',9648:'Misteri',10751:'Keluarga'};
 
-let heroMovies=[],heroIndex=0,heroTimer,currentHeroMovie=null,curModalId=null,searchTimer=null;
+let heroMovies=[],heroIndex=0,heroTimer,currentHeroMovie=null,curModalId=null,curModalType='movie',searchTimer=null;
 
 async function api(p){const s=p.includes('?')?'&':'?';return(await fetch(BASE+p+s+'api_key='+KEY)).json()}
 
-function cardHTML(m,mt='movie'){
-  const poster=m.poster_path?`<img src="${IMG}w342${m.poster_path}" alt="${m.title||m.name}" loading="lazy"/>`:`<div class="card-no-img">🎬</div>`;
-  const year=(m.release_date||m.first_air_date||'').slice(0,4)||'—';
-  const rating=m.vote_average?m.vote_average.toFixed(1):'—';
+function cardHTML(m,mt,gMap){
+  mt=mt||'movie';gMap=gMap||MOVIE_G;
+  const poster=m.poster_path?('<img src="'+IMG+'w342'+m.poster_path+'" alt="'+(m.title||m.name)+'" loading="lazy"/>'):'<div class="card-no-img">\u{1F3AC}</div>';
+  const year=(m.release_date||m.first_air_date||'').slice(0,4)||'--';
+  const rating=m.vote_average?m.vote_average.toFixed(1):'--';
   const title=m.title||m.name;
-  const genres=(m.genre_ids||[]).slice(0,3).map(id=>GENRES[id]).filter(Boolean);
-  const tags=genres.length?genres.map(g=>`<span class="hover-genre-tag">${g}</span>`).join(''):`<span class="hover-genre-tag">Film</span>`;
-  return `<div class="card" onclick="openModal(${m.id},'${mt}')">
-    ${poster}
-    <div class="card-hover-slide"><div class="hover-genres">${tags}</div><div class="hover-rating">⭐ ${rating} · ${year}</div></div>
-    <div class="card-info">
-      <div class="card-title">${title}</div>
-      <div class="card-meta"><span class="card-rating">⭐ ${rating}</span><span class="card-year">${year}</span></div>
-    </div>
-  </div>`;
+  const genres=(m.genre_ids||[]).slice(0,3).map(function(id){return gMap[id]}).filter(Boolean);
+  const gTags=genres.map(function(g){return '<span class="hover-genre-tag">'+g+'</span>'}).join('');
+  const ovSnip=m.overview?('<div class="hover-overview">'+m.overview+'</div>'):'';
+  return '<div class="card" onclick="openModal('+m.id+',\''+mt+'\')">'+poster+'<div class="card-hover-slide"><div class="slide-grad"></div><div class="slide-body">'+(gTags?'<div class="hover-genres">'+gTags+'</div>':'')+ovSnip+'<div class="hover-rating">⭐ '+rating+' · '+year+'</div></div></div><div class="card-info"><div class="card-title">'+title+'</div><div class="card-meta"><span class="card-rating">⭐ '+rating+'</span><span class="card-year">'+year+'</span></div></div></div>';
 }
 
-async function fillRow(id,path,mt='movie'){
-  const el=document.getElementById(id);
+async function fillRow(id,path,mt,gMap){
+  var el=document.getElementById(id);
   el.innerHTML=Array(8).fill('<div class="skeleton sk-card"></div>').join('');
-  const d=await api(path);
-  el.innerHTML=(d.results||[]).map(m=>cardHTML(m,mt)).join('');
+  var d=await api(path);
+  el.innerHTML=(d.results||[]).map(function(m){return cardHTML(m,mt,gMap)}).join('');
 }
 function scrollRow(id,dir){document.getElementById(id).scrollBy({left:dir*560,behavior:'smooth'})}
 
-/* HERO */
 async function loadHero(){
-  const d=await api('/trending/movie/week?language=id-ID');
-  heroMovies=(d.results||[]).filter(m=>m.backdrop_path).slice(0,8);
-  document.getElementById('heroDots').innerHTML=heroMovies.map((_,i)=>`<div class="dot ${i===0?'active':''}" onclick="setHero(${i})"></div>`).join('');
+  var d=await api('/trending/movie/week?language=en-US');
+  heroMovies=(d.results||[]).filter(function(m){return m.backdrop_path}).slice(0,8);
+  document.getElementById('heroDots').innerHTML=heroMovies.map(function(_,i){return '<div class="dot '+(i===0?'active':'')+'" onclick="setHero('+i+')"></div>'}).join('');
   setHero(0);heroTimer=setInterval(nextHero,7500);
 }
 function setHero(i){
-  heroIndex=i;const m=heroMovies[i];currentHeroMovie=m;
-  document.getElementById('heroBg').style.backgroundImage=`url(${IMG}original${m.backdrop_path})`;
+  heroIndex=i;var m=heroMovies[i];currentHeroMovie=m;
+  document.getElementById('heroBg').style.backgroundImage='url('+IMG+'original'+m.backdrop_path+')';
   document.getElementById('heroTitle').textContent=m.title;
   document.getElementById('heroRating').textContent=m.vote_average.toFixed(1);
-  document.getElementById('heroYear').textContent=(m.release_date||'').slice(0,4)||'—';
-  document.getElementById('heroGenre').textContent=GENRES[m.genre_ids?.[0]]||'Film';
+  document.getElementById('heroYear').textContent=(m.release_date||'').slice(0,4)||'--';
+  document.getElementById('heroGenre').textContent=MOVIE_G[m.genre_ids&&m.genre_ids[0]]||'Film';
   document.getElementById('heroOverview').textContent=m.overview||'Tidak ada sinopsis.';
-  document.querySelectorAll('.dot').forEach((d,idx)=>d.classList.toggle('active',idx===i));
+  document.querySelectorAll('.dot').forEach(function(d,idx){d.classList.toggle('active',idx===i)});
 }
 function nextHero(){clearInterval(heroTimer);setHero((heroIndex+1)%heroMovies.length);heroTimer=setInterval(nextHero,7500)}
 function openHeroDetail(){if(currentHeroMovie)openModal(currentHeroMovie.id,'movie')}
 
-/* GENRE PILLS (home) */
 function buildGenrePills(){
-  document.getElementById('genreRow').innerHTML=Object.entries(GENRES).map(([id,n])=>`<span class="genre-pill" onclick="filterGenre(${id},'${n}')">${n}</span>`).join('');
+  document.getElementById('genreRow').innerHTML=Object.entries(MOVIE_G).map(function(e){return '<span class="genre-pill" onclick="filterGenre('+e[0]+',\''+e[1]+'\')">'+e[1]+'</span>'}).join('');
 }
 async function filterGenre(id,name){
-  document.querySelectorAll('.genre-pill').forEach(p=>p.classList.toggle('active',p.textContent===name));
-  const grid=document.getElementById('genreGrid');
-  grid.innerHTML=Array(8).fill('<div class="skeleton" style="height:255px;border-radius:14px"></div>').join('');
-  const d=await api(`/discover/movie?with_genres=${id}&language=id-ID&sort_by=popularity.desc`);
-  grid.innerHTML=(d.results||[]).map(m=>cardHTML(m,'movie')).join('');
-  showToast(`Genre: ${name}`);
+  document.querySelectorAll('.genre-pill').forEach(function(p){p.classList.toggle('active',p.textContent===name)});
+  var grid=document.getElementById('genreGrid');
+  grid.innerHTML=Array(8).fill('<div class="skeleton" style="height:258px;border-radius:14px"></div>').join('');
+  var d=await api('/discover/movie?with_genres='+id+'&language=en-US&sort_by=popularity.desc');
+  grid.innerHTML=(d.results||[]).map(function(m){return cardHTML(m,'movie',MOVIE_G)}).join('');
+  showToast('Genre: '+name);
 }
 
-/* MODAL */
-async function openModal(id,mt='movie'){
-  curModalId=id;
+async function openModal(id,mt){
+  mt=mt||'movie';curModalId=id;curModalType=mt;
   document.getElementById('modal').classList.add('open');
   document.body.style.overflow='hidden';
-  const m=await api(`/${mt}/${id}?language=id-ID`);
-  const title=m.title||m.name;
-  document.getElementById('modalBackdrop').style.backgroundImage=m.backdrop_path?`url(${IMG}w1280${m.backdrop_path})`:'none';
+  var m=await api('/'+mt+'/'+id+'?language=id-ID');
+  var title=m.title||m.name;
+  document.getElementById('modalBackdrop').style.backgroundImage=m.backdrop_path?'url('+IMG+'w1280'+m.backdrop_path+')':'none';
   document.getElementById('modalTitle').textContent=title;
   document.getElementById('modalOverview').textContent=m.overview||'Tidak ada sinopsis.';
-  document.getElementById('modalTags').innerHTML=(m.genres||[]).map(g=>`<span class="modal-tag">${g.name}</span>`).join('');
-  const dur=mt==='movie'?(m.runtime?m.runtime+' menit':'—'):(m.episode_run_time?.[0]?m.episode_run_time[0]+' mnt/eps':'—');
-  document.getElementById('modalStats').innerHTML=`
-    <div class="stat"><span class="stat-label">Rating</span><span class="stat-value" style="color:var(--gold)">⭐ ${m.vote_average?.toFixed(1)||'—'}</span></div>
-    <div class="stat"><span class="stat-label">Tahun</span><span class="stat-value">${(m.release_date||m.first_air_date||'').slice(0,4)||'—'}</span></div>
-    <div class="stat"><span class="stat-label">Durasi</span><span class="stat-value">${dur}</span></div>
-    <div class="stat"><span class="stat-label">Bahasa</span><span class="stat-value">${m.spoken_languages?.[0]?.name||'—'}</span></div>
-    <div class="stat"><span class="stat-label">Status</span><span class="stat-value">${m.status||'—'}</span></div>`;
-  document.getElementById('watchLink').href=`watch.html?id=${id}&type=${mt}`;
+  document.getElementById('modalTags').innerHTML=(m.genres||[]).map(function(g){return '<span class="modal-tag">'+g.name+'</span>'}).join('');
+  var dur=mt==='movie'?(m.runtime?m.runtime+' menit':'--'):((m.episode_run_time&&m.episode_run_time[0])?m.episode_run_time[0]+' mnt/eps':'--');
+  var extra=mt==='tv'?'<div class="stat"><span class="stat-label">Season</span><span class="stat-value">'+(m.number_of_seasons||'--')+'</span></div><div class="stat"><span class="stat-label">Episode</span><span class="stat-value">'+(m.number_of_episodes||'--')+'</span></div>':'';
+  document.getElementById('modalStats').innerHTML='<div class="stat"><span class="stat-label">Rating</span><span class="stat-value" style="color:var(--gold)">\u2B50 '+(m.vote_average?m.vote_average.toFixed(1):'--')+'</span></div><div class="stat"><span class="stat-label">Tahun</span><span class="stat-value">'+((m.release_date||m.first_air_date||'').slice(0,4)||'--')+'</span></div><div class="stat"><span class="stat-label">'+(mt==='movie'?'Durasi':'Per Episode')+'</span><span class="stat-value">'+dur+'</span></div>'+extra+'<div class="stat"><span class="stat-label">Bahasa</span><span class="stat-value">'+((m.spoken_languages&&m.spoken_languages[0]&&m.spoken_languages[0].name)||m.original_language||'--')+'</span></div><div class="stat"><span class="stat-label">Status</span><span class="stat-value">'+(m.status||'--')+'</span></div>';
+  document.getElementById('watchLink').href='watch.html?id='+id+'&type='+mt;
 }
 function closeModal(){document.getElementById('modal').classList.remove('open');document.body.style.overflow=''}
-document.getElementById('modal').addEventListener('click',e=>{if(e.target===document.getElementById('modal'))closeModal()});
-document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
+document.getElementById('modal').addEventListener('click',function(e){if(e.target===document.getElementById('modal'))closeModal()});
+document.addEventListener('keydown',function(e){if(e.key==='Escape')closeModal()});
 
 async function watchTrailer(){
   if(!curModalId)return;showToast('Mencari trailer...');
-  const d=await api(`/movie/${curModalId}/videos`);
-  const t=(d.results||[]).find(v=>v.type==='Trailer'&&v.site==='YouTube')||(d.results||[])[0];
-  if(t&&t.site==='YouTube')window.open(`https://www.youtube.com/watch?v=${t.key}`,'_blank');
-  else showToast('Trailer tidak tersedia 😔');
+  var d=await api('/'+curModalType+'/'+curModalId+'/videos');
+  var t=(d.results||[]).find(function(v){return v.type==='Trailer'&&v.site==='YouTube'})||(d.results||[])[0];
+  if(t&&t.site==='YouTube')window.open('https://www.youtube.com/watch?v='+t.key,'_blank');
+  else showToast('Trailer tidak tersedia');
 }
 
-/* SEARCH */
 function handleSearch(q){
   clearTimeout(searchTimer);
-  const sec=document.getElementById('searchSection');
+  var sec=document.getElementById('searchSection');
   if(!q.trim()){sec.style.display='none';return}
-  searchTimer=setTimeout(async()=>{
+  searchTimer=setTimeout(async function(){
     sec.style.display='block';sec.scrollIntoView({behavior:'smooth',block:'start'});
-    const grid=document.getElementById('searchGrid');
-    grid.innerHTML=Array(8).fill('<div class="skeleton" style="height:255px;border-radius:14px"></div>').join('');
-    const d=await api(`/search/movie?query=${encodeURIComponent(q)}&language=id-ID`);
-    grid.innerHTML=d.results?.length?d.results.map(m=>cardHTML(m,'movie')).join(''):`<p style="color:var(--muted);grid-column:1/-1;padding:20px 0">Tidak ada hasil untuk "<strong>${q}</strong>"</p>`;
+    var grid=document.getElementById('searchGrid');
+    grid.innerHTML=Array(8).fill('<div class="skeleton" style="height:258px;border-radius:14px"></div>').join('');
+    var d=await api('/search/movie?query='+encodeURIComponent(q)+'&language=en-US');
+    grid.innerHTML=d.results&&d.results.length?d.results.map(function(m){return cardHTML(m,'movie',MOVIE_G)}).join(''):'<p style="color:var(--muted);grid-column:1/-1;padding:20px 0">Tidak ada hasil untuk <strong>'+q+'</strong></p>';
   },480);
 }
 
-function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3200)}
+function showToast(msg){var t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(function(){t.classList.remove('show')},3200)}
 
 async function init(){
-  loadHero();buildGenrePills();
-  fillRow('trendRow','/trending/movie/week?language=id-ID','movie');
-  fillRow('popularRow','/movie/popular?language=id-ID','movie');
-  fillRow('topRow','/movie/top_rated?language=id-ID','movie');
-  fillRow('nowRow','/movie/now_playing?language=id-ID','movie');
+  loadHero();
+  buildGenrePills();
+  fillRow('movieRow','/trending/movie/week?language=en-US','movie',MOVIE_G);
+  fillRow('tvRow','/discover/tv?sort_by=popularity.desc&without_genres=16&language=en-US','tv',TV_G);
+  fillRow('animeRow','/discover/tv?sort_by=popularity.desc&with_original_language=ja&with_genres=16&language=en-US','tv',ANIME_G);
+  fillRow('donghuaRow','/discover/tv?sort_by=popularity.desc&with_original_language=zh&with_genres=16&language=en-US','tv',ANIME_G);
+  fillRow('topRow','/movie/top_rated?language=en-US','movie',MOVIE_G);
+  fillRow('nowRow','/movie/now_playing?language=en-US','movie',MOVIE_G);
 }
 init();
 </script>

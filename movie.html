@@ -64,11 +64,14 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 .card-meta{display:flex;align-items:center;justify-content:space-between}
 .card-rating{display:flex;align-items:center;gap:4px;color:var(--gold);font-size:.72rem;font-weight:600}
 .card-year{color:var(--muted);font-size:.7rem}
-.card-hover-slide{position:absolute;left:0;right:0;bottom:0;background:linear-gradient(to top,rgba(7,7,15,.98) 0%,rgba(13,13,28,.9) 55%,transparent 100%);padding:38px 12px 12px;transform:translateY(100%);transition:transform .3s cubic-bezier(0.4,0,0.2,1);z-index:4;pointer-events:none}
+.card-hover-slide{position:absolute;left:0;right:0;bottom:0;z-index:4;pointer-events:none;transform:translateY(100%);transition:transform .33s cubic-bezier(0.4,0,0.2,1)}
 .card:hover .card-hover-slide{transform:translateY(0)}
-.hover-genres{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px}
-.hover-genre-tag{background:rgba(229,56,59,.18);border:1px solid rgba(229,56,59,.38);color:#ff7b7d;padding:2px 8px;border-radius:10px;font-size:.62rem;font-weight:500}
-.hover-rating{color:var(--gold);font-size:.72rem;font-weight:600}
+.slide-grad{height:64px;background:linear-gradient(to bottom,transparent 0%,rgba(7,7,15,.08) 18%,rgba(7,7,15,.48) 52%,rgba(7,7,15,.9) 88%,rgba(7,7,15,.97) 100%)}
+.slide-body{background:rgba(7,7,15,.97);padding:6px 11px 10px}
+.hover-genres{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:5px}
+.hover-genre-tag{background:rgba(229,56,59,.16);border:1px solid rgba(229,56,59,.34);color:#ff8a8c;padding:2px 8px;border-radius:10px;font-size:.61rem;font-weight:500}
+.hover-overview{color:rgba(239,240,246,.68);font-size:.67rem;line-height:1.52;margin-bottom:5px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.hover-rating{color:var(--gold);font-size:.71rem;font-weight:600}
 /* LOAD MORE */
 .load-wrap{text-align:center;margin-top:32px}
 .btn-load{background:var(--accent);color:#fff;border:none;cursor:pointer;padding:12px 32px;border-radius:9px;font-size:.86rem;font-weight:600;font-family:'DM Sans',sans-serif;display:none;transition:background .2s,transform .15s}
@@ -169,6 +172,18 @@ footer{border-top:1px solid var(--border);padding:36px 5%;display:flex;justify-c
 
     <div class="f-sep"></div>
 
+    <!-- Age Rating -->
+    <select class="f-select" id="fCert" onchange="doFetch(1)">
+      <option value="">👤 Semua Usia</option>
+      <option value="G">G — Semua Usia</option>
+      <option value="PG">PG — 7+</option>
+      <option value="PG-13">PG-13 — 13+</option>
+      <option value="R">R — 17+</option>
+      <option value="NC-17">NC-17 — 18+</option>
+    </select>
+
+    <div class="f-sep"></div>
+
     <!-- Upcoming -->
     <button class="f-toggle" id="fUpcoming" onclick="toggleUpcoming()">📅 Upcoming</button>
 
@@ -240,7 +255,7 @@ const CFG = {
 ═══════════════════════════════════════════ */
 const KEY='8fa936e44fccebb6750101c3ed4c7d79', BASE='https://api.themoviedb.org/3', IMG='https://image.tmdb.org/t/p/';
 
-const fs = { genres: new Set(), year:'', country:'', upcoming:false, sort:'popularity.desc' };
+const fs = { genres: new Set(), year:'', country:'', cert:'', upcoming:false, sort:'popularity.desc' };
 let curPage=1, curModalId=null, searchTimer=null, searching=false;
 
 async function api(p){const s=p.includes('?')?'&':'?';return(await fetch(BASE+p+s+'api_key='+KEY)).json()}
@@ -252,10 +267,11 @@ function cardHTML(m){
   const rating=m.vote_average?m.vote_average.toFixed(1):'—';
   const title=m.title||m.name;
   const genres=(m.genre_ids||[]).slice(0,3).map(id=>CFG.genres[id]).filter(Boolean);
-  const tags=genres.length?genres.map(g=>`<span class="hover-genre-tag">${g}</span>`).join(''):`<span class="hover-genre-tag">${CFG.mediaType==='movie'?'Film':'Series'}</span>`;
+  const gTags=genres.map(g=>`<span class="hover-genre-tag">${g}</span>`).join('');
+  const ovSnip=m.overview?`<div class="hover-overview">${m.overview}</div>`:'';
   return `<div class="card" onclick="openModal(${m.id})">
     ${poster}
-    <div class="card-hover-slide"><div class="hover-genres">${tags}</div><div class="hover-rating">⭐ ${rating} · ${year}</div></div>
+    <div class="card-hover-slide"><div class="slide-grad"></div><div class="slide-body">${gTags?`<div class="hover-genres">${gTags}</div>`:''}${ovSnip}<div class="hover-rating">⭐ ${rating} · ${year}</div></div></div>
     <div class="card-info">
       <div class="card-title">${title}</div>
       <div class="card-meta"><span class="card-rating">⭐ ${rating}</span><span class="card-year">${year}</span></div>
@@ -266,7 +282,7 @@ function cardHTML(m){
 /* ── Build params ── */
 function buildParams(page){
   const p=new URLSearchParams();
-  p.set('language','id-ID');
+  p.set('language','en-US');
   p.set('page',page);
   p.set('vote_count.gte','10');
 
@@ -288,6 +304,10 @@ function buildParams(page){
 
   // Country
   if(fs.country && CFG.showCountry) p.set('with_origin_country',fs.country);
+
+  // Age rating (certification)
+  const cert=document.getElementById('fCert')?.value||'';
+  if(cert){p.set('certification_country','US');p.set('certification.lte',cert)}
 
   // Upcoming: future dates only
   if(fs.upcoming){
@@ -399,6 +419,7 @@ function resetFilters(){
   document.getElementById('fYear').value='';
   if(document.getElementById('fCountry')) document.getElementById('fCountry').value='';
   document.getElementById('fSort').value='popularity.desc';
+  const fCert=document.getElementById('fCert');if(fCert)fCert.value='';
   document.getElementById('fUpcoming').classList.remove('on');
   document.getElementById('searchInput').value='';
   doFetch(1);
@@ -423,7 +444,7 @@ function handleSearch(q){
     const grid=document.getElementById('grid');
     grid.innerHTML=Array(12).fill('<div class="skeleton" style="height:258px;border-radius:14px"></div>').join('');
     document.getElementById('btnLoad').classList.remove('visible');
-    const d=await api(`/search/${CFG.mediaType}?query=${encodeURIComponent(q)}&language=id-ID`);
+    const d=await api(`/search/${CFG.mediaType}?query=${encodeURIComponent(q)}&language=en-US`);
     let results=d.results||[];
     // Filter by language for anime/donghua
     if(CFG.forcedLang) results=results.filter(m=>m.original_language===CFG.forcedLang);
