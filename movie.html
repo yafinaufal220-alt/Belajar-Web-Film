@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>CineVerse — Movie</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#07070f;--surface:#0f0f1c;--card:#131320;--border:rgba(255,255,255,0.06);--accent:#e5383b;--accent2:#ff6b35;--gold:#f4c430;--text:#eff0f6;--muted:#6b6b88;--radius:14px}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;overflow-x:hidden}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--accent);border-radius:3px}
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 5%;height:64px;background:linear-gradient(to bottom,rgba(7,7,15,.97) 70%,transparent);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+.logo{font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:4px;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-decoration:none}
+.nav-links{display:flex;gap:28px}
+.nav-links a{color:var(--muted);text-decoration:none;font-size:.83rem;font-weight:500;transition:color .2s}
+.nav-links a:hover,.nav-links a.active{color:var(--text)}
+#searchInput{background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:10px;color:var(--text);padding:9px 16px;font-size:.83rem;width:200px;outline:none;transition:border-color .25s,width .3s;font-family:'DM Sans',sans-serif}
+#searchInput:focus{border-color:rgba(229,56,59,.6);width:260px}
+#searchInput::placeholder{color:var(--muted)}
+/* PAGE */
+.page-wrap{padding:88px 5% 90px}
+.page-header{margin-bottom:24px}
+.page-title{font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:3px;position:relative;padding-left:14px;margin-bottom:4px}
+.page-title::before{content:'';position:absolute;left:0;top:3px;bottom:3px;width:3.5px;background:var(--accent);border-radius:2px}
+.page-subtitle{color:var(--muted);font-size:.82rem;padding-left:14px}
+/* FILTER BAR */
+.filter-bar{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 18px;margin-bottom:26px;display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+/* Genre Dropdown */
+.genre-dd{position:relative}
+.genre-dd-btn{background:var(--card);border:1px solid var(--border);color:var(--text);padding:8px 14px;border-radius:10px;font-size:.78rem;font-family:'DM Sans',sans-serif;cursor:pointer;display:flex;align-items:center;gap:8px;white-space:nowrap;min-width:155px;justify-content:space-between;transition:border-color .2s}
+.genre-dd-btn:hover,.genre-dd-btn.open{border-color:rgba(229,56,59,.55)}
+.genre-dd-btn .arrow{font-size:.65rem;transition:transform .2s;color:var(--muted)}
+.genre-dd-btn.open .arrow{transform:rotate(180deg)}
+.genre-dd-panel{position:absolute;top:calc(100% + 7px);left:0;z-index:500;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:10px;min-width:215px;max-height:290px;overflow-y:auto;display:none;box-shadow:0 16px 40px rgba(0,0,0,.5)}
+.genre-dd-panel.open{display:block}
+.genre-dd-panel::-webkit-scrollbar{width:4px}
+.genre-dd-panel::-webkit-scrollbar-thumb{background:var(--accent);border-radius:2px}
+.genre-dd-item{display:flex;align-items:center;gap:9px;padding:7px 9px;border-radius:8px;cursor:pointer;font-size:.8rem;color:var(--text);transition:background .15s;user-select:none}
+.genre-dd-item:hover{background:rgba(255,255,255,.06)}
+.genre-dd-item input[type=checkbox]{accent-color:var(--accent);width:14px;height:14px;cursor:pointer;flex-shrink:0;pointer-events:none}
+.genre-dd-footer{border-top:1px solid var(--border);margin-top:8px;padding-top:8px}
+.genre-dd-clear{background:none;border:none;color:var(--muted);font-size:.74rem;cursor:pointer;font-family:'DM Sans',sans-serif;padding:0;transition:color .2s}
+.genre-dd-clear:hover{color:var(--accent)}
+/* Other filters */
+.f-select{background:var(--card);border:1px solid var(--border);color:var(--text);padding:8px 12px;border-radius:10px;font-size:.78rem;font-family:'DM Sans',sans-serif;cursor:pointer;outline:none;transition:border-color .2s;-webkit-appearance:none;appearance:none}
+.f-select:hover,.f-select:focus{border-color:rgba(229,56,59,.55)}
+.f-select option{background:var(--card)}
+.f-toggle{background:var(--card);border:1px solid var(--border);color:var(--muted);padding:8px 16px;border-radius:10px;font-size:.78rem;font-weight:500;cursor:pointer;transition:all .2s;font-family:'DM Sans',sans-serif}
+.f-toggle.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.f-toggle:hover:not(.on){border-color:rgba(229,56,59,.4);color:var(--text)}
+.f-reset{background:transparent;border:1px solid rgba(255,255,255,.12);color:var(--muted);padding:8px 13px;border-radius:10px;font-size:.78rem;cursor:pointer;transition:all .2s;font-family:'DM Sans',sans-serif}
+.f-reset:hover{border-color:rgba(255,255,255,.3);color:var(--text)}
+.f-sep{width:1px;height:20px;background:var(--border);flex-shrink:0}
+/* CARD */
+.movie-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:15px}
+.card{border-radius:var(--radius);overflow:hidden;background:var(--card);cursor:pointer;position:relative;transition:transform .3s,box-shadow .3s;border:1px solid var(--border)}
+.card:hover{transform:translateY(-9px);box-shadow:0 22px 55px rgba(229,56,59,.22)}
+.card img{width:100%;aspect-ratio:2/3;object-fit:cover;display:block}
+.card-no-img{width:100%;aspect-ratio:2/3;background:var(--surface);display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:2.2rem}
+.card-info{padding:10px 12px 13px}
+.card-title{font-size:.79rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:6px}
+.card-meta{display:flex;align-items:center;justify-content:space-between}
+.card-rating{display:flex;align-items:center;gap:4px;color:var(--gold);font-size:.72rem;font-weight:600}
+.card-year{color:var(--muted);font-size:.7rem}
+.card-hover-slide{position:absolute;left:0;right:0;bottom:0;background:linear-gradient(to top,rgba(7,7,15,.98) 0%,rgba(13,13,28,.9) 55%,transparent 100%);padding:38px 12px 12px;transform:translateY(100%);transition:transform .3s cubic-bezier(0.4,0,0.2,1);z-index:4;pointer-events:none}
+.card:hover .card-hover-slide{transform:translateY(0)}
+.hover-genres{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px}
+.hover-genre-tag{background:rgba(229,56,59,.18);border:1px solid rgba(229,56,59,.38);color:#ff7b7d;padding:2px 8px;border-radius:10px;font-size:.62rem;font-weight:500}
+.hover-rating{color:var(--gold);font-size:.72rem;font-weight:600}
+/* LOAD MORE */
+.load-wrap{text-align:center;margin-top:32px}
+.btn-load{background:var(--accent);color:#fff;border:none;cursor:pointer;padding:12px 32px;border-radius:9px;font-size:.86rem;font-weight:600;font-family:'DM Sans',sans-serif;display:none;transition:background .2s,transform .15s}
+.btn-load:hover{background:#c8202a;transform:translateY(-2px)}
+.btn-load.visible{display:inline-block}
+/* SKELETON */
+.skeleton{background:linear-gradient(90deg,var(--card) 25%,#1a1a2e 50%,var(--card) 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:var(--radius)}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+/* MODAL */
+#modal{display:none;position:fixed;inset:0;z-index:300;background:rgba(0,0,0,.92);backdrop-filter:blur(10px);align-items:flex-start;justify-content:center;padding:24px 16px;overflow-y:auto}
+#modal.open{display:flex}
+.modal-box{background:var(--surface);border:1px solid var(--border);border-radius:20px;overflow:hidden;max-width:780px;width:100%;animation:modalIn .3s ease;margin:auto}
+@keyframes modalIn{from{opacity:0;transform:scale(.93) translateY(22px)}to{opacity:1;transform:scale(1) translateY(0)}}
+#modalBackdrop{position:relative;height:300px;background-size:cover;background-position:center}
+#modalBackdrop::after{content:'';position:absolute;inset:0;background:linear-gradient(to top,var(--surface) 0%,transparent 60%)}
+.modal-close-btn{position:absolute;top:14px;right:14px;z-index:2;background:rgba(0,0,0,.65);border:none;color:#fff;width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;transition:background .2s}
+.modal-close-btn:hover{background:var(--accent)}
+.modal-body{padding:4px 28px 30px}
+.modal-title{font-family:'Bebas Neue',sans-serif;font-size:2.2rem;letter-spacing:1px;margin-bottom:10px}
+.modal-tags{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px}
+.modal-tag{background:rgba(229,56,59,.12);border:1px solid rgba(229,56,59,.28);color:var(--accent);padding:4px 12px;border-radius:20px;font-size:.72rem}
+.modal-overview{color:rgba(239,240,246,.68);font-size:.88rem;line-height:1.72;margin-bottom:20px}
+.modal-stats{display:flex;gap:28px;flex-wrap:wrap;padding:16px 0;margin-bottom:22px;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.stat{display:flex;flex-direction:column;gap:4px}
+.stat-label{color:var(--muted);font-size:.68rem;text-transform:uppercase;letter-spacing:1.2px}
+.stat-value{font-weight:600;font-size:.92rem}
+.action-btns{display:flex;gap:10px;flex-wrap:wrap}
+.btn-watch{background:var(--accent);color:#fff;border:none;cursor:pointer;padding:13px 28px;border-radius:9px;font-size:.88rem;font-weight:600;font-family:'DM Sans',sans-serif;display:flex;align-items:center;gap:8px;transition:background .2s,transform .15s;text-decoration:none}
+.btn-watch:hover{background:#c8202a;transform:translateY(-1px)}
+.btn-trailer{background:rgba(255,255,255,.08);color:var(--text);border:1px solid rgba(255,255,255,.13);cursor:pointer;padding:13px 28px;border-radius:9px;font-size:.88rem;font-family:'DM Sans',sans-serif;display:flex;align-items:center;gap:8px;transition:background .2s}
+.btn-trailer:hover{background:rgba(255,255,255,.16)}
+/* TOAST */
+#toast{position:fixed;bottom:26px;right:26px;z-index:400;background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);padding:12px 20px;border-radius:10px;font-size:.83rem;color:var(--text);transform:translateY(80px);opacity:0;transition:all .35s;max-width:290px}
+#toast.show{transform:translateY(0);opacity:1}
+/* EMPTY */
+.empty-msg{color:var(--muted);grid-column:1/-1;padding:40px 0;text-align:center;font-size:.88rem}
+footer{border-top:1px solid var(--border);padding:36px 5%;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px}
+.footer-logo{font-family:'Bebas Neue',sans-serif;font-size:1.5rem;letter-spacing:3px;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.footer-text{color:var(--muted);font-size:.76rem}
+@media(max-width:640px){.nav-links{display:none}#searchInput{width:130px}#searchInput:focus{width:170px}.filter-bar{gap:8px}}
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="logo" href="index.html">CineVerse</a>
+  <div class="nav-links">
+    <a href="index.html">Beranda</a>
+    <a href="movie.html" class="active">Movie</a>
+    <a href="tv.html">TV Series</a>
+    <a href="anime.html">Anime</a>
+    <a href="donghua.html">Donghua</a>
+  </div>
+  <input type="text" id="searchInput" placeholder="🔍  Cari film..." oninput="handleSearch(this.value)"/>
+</nav>
+
+<div class="page-wrap">
+  <div class="page-header">
+    <h1 class="page-title">🎬 Movie</h1>
+    <p class="page-subtitle">Jelajahi ribuan film dari seluruh penjuru dunia</p>
+  </div>
+
+  <!-- FILTER BAR -->
+  <div class="filter-bar">
+    <!-- Genre dropdown multi-select -->
+    <div class="genre-dd" id="genreDD">
+      <button class="genre-dd-btn" id="genreDDBtn" type="button" onclick="toggleDD(event)">
+        <span id="genreLabel">Semua Genre</span>
+        <span class="arrow">▾</span>
+      </button>
+      <div class="genre-dd-panel" id="genreDDPanel"></div>
+    </div>
+
+    <div class="f-sep"></div>
+
+    <!-- Year -->
+    <select class="f-select" id="fYear" onchange="doFetch(1)">
+      <option value="">📅 Semua Tahun</option>
+    </select>
+
+    <!-- Country -->
+    <select class="f-select" id="fCountry" onchange="doFetch(1)">
+      <option value="">🌍 Semua Negara</option>
+      <option value="ID">🇮🇩 Indonesia</option>
+      <option value="US">🇺🇸 Amerika</option>
+      <option value="GB">🇬🇧 Inggris</option>
+      <option value="FR">🇫🇷 Prancis</option>
+      <option value="DE">🇩🇪 Jerman</option>
+      <option value="IT">🇮🇹 Italia</option>
+      <option value="ES">🇪🇸 Spanyol</option>
+      <option value="IN">🇮🇳 India</option>
+      <option value="KR">🇰🇷 Korea</option>
+      <option value="JP">🇯🇵 Jepang</option>
+      <option value="CN">🇨🇳 Tiongkok</option>
+      <option value="TH">🇹🇭 Thailand</option>
+      <option value="AU">🇦🇺 Australia</option>
+    </select>
+
+    <div class="f-sep"></div>
+
+    <!-- Upcoming -->
+    <button class="f-toggle" id="fUpcoming" onclick="toggleUpcoming()">📅 Upcoming</button>
+
+    <div class="f-sep"></div>
+
+    <!-- Sort -->
+    <select class="f-select" id="fSort" onchange="doFetch(1)">
+      <option value="popularity.desc">🔥 Terpopuler</option>
+      <option value="vote_average.desc">⭐ Rating Tertinggi</option>
+      <option value="primary_release_date.desc">🆕 Terbaru</option>
+      <option value="primary_release_date.asc">🕰️ Terlama</option>
+      <option value="original_title.asc">🔤 A → Z</option>
+      <option value="original_title.desc">🔡 Z → A</option>
+    </select>
+
+    <button class="f-reset" onclick="resetFilters()">✕ Reset</button>
+  </div>
+
+  <!-- GRID -->
+  <div class="movie-grid" id="grid"></div>
+  <div class="load-wrap"><button class="btn-load" id="btnLoad" onclick="loadMore()">Muat Lebih Banyak</button></div>
+</div>
+
+<div id="modal">
+  <div class="modal-box">
+    <div id="modalBackdrop"><button class="modal-close-btn" onclick="closeModal()">✕</button></div>
+    <div class="modal-body">
+      <h2 class="modal-title" id="modalTitle"></h2>
+      <div class="modal-tags" id="modalTags"></div>
+      <p class="modal-overview" id="modalOverview"></p>
+      <div class="modal-stats" id="modalStats"></div>
+      <div class="action-btns">
+        <a class="btn-watch" id="watchLink" href="#">▶&nbsp; Tonton Film</a>
+        <button class="btn-trailer" onclick="watchTrailer()">🎬&nbsp; Trailer</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div id="toast"></div>
+
+<footer>
+  <div class="footer-logo">CineVerse</div>
+  <div class="footer-text">Data dari <strong>TMDB</strong> · Dibuat dengan ❤️ · 2026</div>
+</footer>
+
+<script>
+/* ═══════════════════════════════════════════
+   PAGE CONFIG — only change this per page
+═══════════════════════════════════════════ */
+const CFG = {
+  mediaType:    'movie',
+  endpoint:     '/discover/movie',
+  forcedGenres: [],          // always included genre IDs
+  forcedLang:   null,        // forced original_language
+  excludeGenres:[],          // genre IDs to exclude
+  genres: {
+    28:'Aksi', 12:'Petualangan', 16:'Animasi', 35:'Komedi', 80:'Kriminal',
+    99:'Dokumenter', 18:'Drama', 10751:'Keluarga', 14:'Fantasi', 36:'Sejarah',
+    27:'Horor', 10402:'Musik', 9648:'Misteri', 10749:'Romantis',
+    878:'Sci-Fi', 53:'Thriller', 10752:'Perang', 37:'Western'
+  },
+  sortYear:  'primary_release_year',
+  sortUpAsc: 'primary_release_date.asc',
+  showCountry: true,
+};
+
+/* ═══════════════════════════════════════════
+   SHARED CORE
+═══════════════════════════════════════════ */
+const KEY='8fa936e44fccebb6750101c3ed4c7d79', BASE='https://api.themoviedb.org/3', IMG='https://image.tmdb.org/t/p/';
+
+const fs = { genres: new Set(), year:'', country:'', upcoming:false, sort:'popularity.desc' };
+let curPage=1, curModalId=null, searchTimer=null, searching=false;
+
+async function api(p){const s=p.includes('?')?'&':'?';return(await fetch(BASE+p+s+'api_key='+KEY)).json()}
+
+/* ── Card HTML ── */
+function cardHTML(m){
+  const poster=m.poster_path?`<img src="${IMG}w342${m.poster_path}" alt="${m.title||m.name}" loading="lazy"/>`:`<div class="card-no-img">🎬</div>`;
+  const year=(m.release_date||m.first_air_date||'').slice(0,4)||'—';
+  const rating=m.vote_average?m.vote_average.toFixed(1):'—';
+  const title=m.title||m.name;
+  const genres=(m.genre_ids||[]).slice(0,3).map(id=>CFG.genres[id]).filter(Boolean);
+  const tags=genres.length?genres.map(g=>`<span class="hover-genre-tag">${g}</span>`).join(''):`<span class="hover-genre-tag">${CFG.mediaType==='movie'?'Film':'Series'}</span>`;
+  return `<div class="card" onclick="openModal(${m.id})">
+    ${poster}
+    <div class="card-hover-slide"><div class="hover-genres">${tags}</div><div class="hover-rating">⭐ ${rating} · ${year}</div></div>
+    <div class="card-info">
+      <div class="card-title">${title}</div>
+      <div class="card-meta"><span class="card-rating">⭐ ${rating}</span><span class="card-year">${year}</span></div>
+    </div>
+  </div>`;
+}
+
+/* ── Build params ── */
+function buildParams(page){
+  const p=new URLSearchParams();
+  p.set('language','id-ID');
+  p.set('page',page);
+  p.set('vote_count.gte','10');
+
+  // Sort — override if upcoming
+  p.set('sort_by', fs.upcoming ? CFG.sortUpAsc : fs.sort);
+
+  // Genres: forced + user selected
+  const all=[...CFG.forcedGenres,...fs.genres];
+  if(all.length) p.set('with_genres',all.join(','));
+
+  // Exclude genres
+  if(CFG.excludeGenres.length) p.set('without_genres',CFG.excludeGenres.join(','));
+
+  // Language
+  if(CFG.forcedLang) p.set('with_original_language',CFG.forcedLang);
+
+  // Year
+  if(fs.year) p.set(CFG.sortYear, fs.year);
+
+  // Country
+  if(fs.country && CFG.showCountry) p.set('with_origin_country',fs.country);
+
+  // Upcoming: future dates only
+  if(fs.upcoming){
+    const today=new Date().toISOString().slice(0,10);
+    p.set(CFG.mediaType==='movie'?'primary_release_date.gte':'first_air_date.gte', today);
+  }
+  return p;
+}
+
+/* ── Fetch ── */
+async function doFetch(page=1){
+  searching=false;
+  // sync select values
+  fs.year    = document.getElementById('fYear')?.value    || '';
+  fs.country = document.getElementById('fCountry')?.value || '';
+  fs.sort    = document.getElementById('fSort')?.value    || 'popularity.desc';
+
+  const grid=document.getElementById('grid');
+  if(page===1){
+    curPage=1;
+    grid.innerHTML=Array(18).fill('<div class="skeleton" style="height:258px;border-radius:14px"></div>').join('');
+  }
+
+  const data=await api(`${CFG.endpoint}?${buildParams(page)}`);
+  const results=data.results||[];
+
+  if(page===1){
+    grid.innerHTML=results.length
+      ? results.map(cardHTML).join('')
+      : `<p class="empty-msg">Tidak ada hasil. Coba filter lain.</p>`;
+  } else {
+    grid.insertAdjacentHTML('beforeend',results.map(cardHTML).join(''));
+  }
+
+  curPage=page;
+  const btn=document.getElementById('btnLoad');
+  btn.classList.toggle('visible', results.length>=18);
+}
+
+function loadMore(){doFetch(curPage+1)}
+
+/* ── Genre Dropdown ── */
+function buildGenreDD(){
+  const panel=document.getElementById('genreDDPanel');
+  panel.innerHTML=Object.entries(CFG.genres).map(([id,name])=>`
+    <label class="genre-dd-item">
+      <input type="checkbox" value="${id}" onchange="onGenreChange()"> ${name}
+    </label>`).join('')+`
+    <div class="genre-dd-footer">
+      <button class="genre-dd-clear" onclick="clearGenres()">Hapus Semua</button>
+    </div>`;
+}
+
+function toggleDD(e){
+  e.stopPropagation();
+  const panel=document.getElementById('genreDDPanel');
+  const btn=document.getElementById('genreDDBtn');
+  const isOpen=panel.classList.contains('open');
+  panel.classList.toggle('open',!isOpen);
+  btn.classList.toggle('open',!isOpen);
+}
+
+function onGenreChange(){
+  const checked=[...document.querySelectorAll('#genreDDPanel input:checked')];
+  fs.genres=new Set(checked.map(c=>parseInt(c.value)));
+  updateGenreLabel();
+  doFetch(1);
+}
+
+function updateGenreLabel(){
+  const label=document.getElementById('genreLabel');
+  if(fs.genres.size===0) label.textContent='Semua Genre';
+  else if(fs.genres.size===1){
+    const id=[...fs.genres][0];
+    label.textContent=CFG.genres[id]||'Genre';
+  } else {
+    label.textContent=`${fs.genres.size} Genre Dipilih`;
+  }
+}
+
+function clearGenres(){
+  document.querySelectorAll('#genreDDPanel input').forEach(c=>c.checked=false);
+  fs.genres.clear();
+  updateGenreLabel();
+  doFetch(1);
+}
+
+// Close dropdown on outside click
+document.addEventListener('click',e=>{
+  const dd=document.getElementById('genreDD');
+  if(!dd.contains(e.target)){
+    document.getElementById('genreDDPanel').classList.remove('open');
+    document.getElementById('genreDDBtn').classList.remove('open');
+  }
+});
+
+/* ── Upcoming toggle ── */
+function toggleUpcoming(){
+  fs.upcoming=!fs.upcoming;
+  document.getElementById('fUpcoming').classList.toggle('on',fs.upcoming);
+  doFetch(1);
+}
+
+/* ── Reset ── */
+function resetFilters(){
+  fs.genres.clear();fs.year='';fs.country='';fs.upcoming=false;fs.sort='popularity.desc';
+  document.querySelectorAll('#genreDDPanel input').forEach(c=>c.checked=false);
+  updateGenreLabel();
+  document.getElementById('fYear').value='';
+  if(document.getElementById('fCountry')) document.getElementById('fCountry').value='';
+  document.getElementById('fSort').value='popularity.desc';
+  document.getElementById('fUpcoming').classList.remove('on');
+  document.getElementById('searchInput').value='';
+  doFetch(1);
+}
+
+/* ── Year options ── */
+function buildYearOpts(){
+  const sel=document.getElementById('fYear');
+  const yr=new Date().getFullYear();
+  for(let y=yr;y>=1920;y--){
+    const o=document.createElement('option');
+    o.value=y;o.textContent=y;sel.appendChild(o);
+  }
+}
+
+/* ── Search ── */
+function handleSearch(q){
+  clearTimeout(searchTimer);
+  if(!q.trim()){searching=false;doFetch(1);return}
+  searchTimer=setTimeout(async()=>{
+    searching=true;
+    const grid=document.getElementById('grid');
+    grid.innerHTML=Array(12).fill('<div class="skeleton" style="height:258px;border-radius:14px"></div>').join('');
+    document.getElementById('btnLoad').classList.remove('visible');
+    const d=await api(`/search/${CFG.mediaType}?query=${encodeURIComponent(q)}&language=id-ID`);
+    let results=d.results||[];
+    // Filter by language for anime/donghua
+    if(CFG.forcedLang) results=results.filter(m=>m.original_language===CFG.forcedLang);
+    grid.innerHTML=results.length
+      ? results.map(cardHTML).join('')
+      : `<p class="empty-msg">Tidak ada hasil untuk "<strong>${q}</strong>"</p>`;
+  },480);
+}
+
+/* ── Modal ── */
+async function openModal(id){
+  curModalId=id;
+  document.getElementById('modal').classList.add('open');
+  document.body.style.overflow='hidden';
+  const m=await api(`/${CFG.mediaType}/${id}?language=id-ID`);
+  const title=m.title||m.name;
+  document.getElementById('modalBackdrop').style.backgroundImage=m.backdrop_path?`url(${IMG}w1280${m.backdrop_path})`:'none';
+  document.getElementById('modalTitle').textContent=title;
+  document.getElementById('modalOverview').textContent=m.overview||'Tidak ada sinopsis.';
+  document.getElementById('modalTags').innerHTML=(m.genres||[]).map(g=>`<span class="modal-tag">${g.name}</span>`).join('');
+  const dur=CFG.mediaType==='movie'?(m.runtime?m.runtime+' menit':'—'):(m.episode_run_time?.[0]?m.episode_run_time[0]+' mnt/eps':'—');
+  const extra=CFG.mediaType==='tv'?`
+    <div class="stat"><span class="stat-label">Season</span><span class="stat-value">${m.number_of_seasons||'—'}</span></div>
+    <div class="stat"><span class="stat-label">Episode</span><span class="stat-value">${m.number_of_episodes||'—'}</span></div>`:'';
+  document.getElementById('modalStats').innerHTML=`
+    <div class="stat"><span class="stat-label">Rating</span><span class="stat-value" style="color:var(--gold)">⭐ ${m.vote_average?.toFixed(1)||'—'}</span></div>
+    <div class="stat"><span class="stat-label">Tahun</span><span class="stat-value">${(m.release_date||m.first_air_date||'').slice(0,4)||'—'}</span></div>
+    <div class="stat"><span class="stat-label">${CFG.mediaType==='movie'?'Durasi':'Per Episode'}</span><span class="stat-value">${dur}</span></div>
+    ${extra}
+    <div class="stat"><span class="stat-label">Bahasa</span><span class="stat-value">${m.spoken_languages?.[0]?.name||m.original_language||'—'}</span></div>
+    <div class="stat"><span class="stat-label">Status</span><span class="stat-value">${m.status||'—'}</span></div>`;
+  document.getElementById('watchLink').href=`watch.html?id=${id}&type=${CFG.mediaType}`;
+}
+function closeModal(){document.getElementById('modal').classList.remove('open');document.body.style.overflow=''}
+document.getElementById('modal').addEventListener('click',e=>{if(e.target===document.getElementById('modal'))closeModal()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
+
+async function watchTrailer(){
+  if(!curModalId)return;showToast('Mencari trailer...');
+  const d=await api(`/${CFG.mediaType}/${curModalId}/videos`);
+  const t=(d.results||[]).find(v=>v.type==='Trailer'&&v.site==='YouTube')||(d.results||[])[0];
+  if(t&&t.site==='YouTube')window.open(`https://www.youtube.com/watch?v=${t.key}`,'_blank');
+  else showToast('Trailer tidak tersedia 😔');
+}
+
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3200)}
+
+/* ── INIT ── */
+buildYearOpts();
+buildGenreDD();
+doFetch(1);
+</script>
+</body>
+</html>
